@@ -1,4 +1,4 @@
-# Eventer - the Comprehensive Even and Error Handling Framework
+# Eventer - the Comprehensive Event and Error Handling Framework
 
 
 ## Symptoms of a Problem
@@ -12,14 +12,12 @@ Error handling is a part of the software developer’s life which is pushed into
 
 ### Examples of Bad Behavior
 
-* Mixing the domains (layers)
-
-* Abusing the exceptions
-
+* Mixing the business domains or layers
+* Abusing the exception mechanism
 * Lack of centralized error handling
-
 * Lack of consistency
 
+### Other Transgressions
 
 * **No standard of a message**
 
@@ -80,10 +78,10 @@ Now we can try to imagine what we want to achieve by sending the information bac
   Unique identification of the message. This is always unique, no matter what is the message.
 * Type of event ID
 
-  Otherwise the `templateId`. This is the textual ID that represets the type of the message. For example such type may be “File not found”, always with the same textual message plus additional relevant context (like a file name in this scenario). 
+  Otherwise the `templateId`. This is the textual ID that represets the type of the message. For example such type may be “File not found”, always with the same textual message plus additional relevant context (like a file name in this scenario).
 * **Category of the event**
 
-  Optional categorization of the message. It is used to filter the messages. It may signify the purpose of the message or the severity of the event, etc. 
+  Optional categorization of the message. It is used to filter the messages. It may signify the purpose of the message or the severity of the event, etc.
 * **Textual message**
 
   Textual form of a message with placeholders where the context can be injected where needed.

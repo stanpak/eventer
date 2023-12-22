@@ -1,0 +1,37 @@
+error-handling:
+
+  includeInRestResponse:
+    templateId: true
+    timing: true
+    message: true
+    causes: true
+    context: true
+    howToFix: true
+    exceptionInfo: true
+    stackTrace: false
+    location: true
+
+  writeToLog: true
+  includeInLoggedMessage:
+    templateId: true
+    timing: true
+    message: true
+    causes: true
+    context: true
+    howToFix: true
+    exceptionInfo: true
+    stackTrace: false
+    location: true
+
+  templates:
+    -
+      templateId: "msg00"
+      message: "Terrible thing just happened, context: %s"
+    -
+      templateId: "msg01"
+      message: "Terrible thing just happened (no context)"
+  #      possibleCauses:
+  #        - "not sure what"
+  #      howToFix:
+  #        - "Write the code again"
+  #        - "Do nothing"
