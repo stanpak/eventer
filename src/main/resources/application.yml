@@ -1,6 +1,22 @@
 error-handling:
 
-  includeInRestResponse:
+  # Options enabling the event capturing capabilities.
+  # If you specify enabled as false, the event information will not be captured and you will effectively
+  # turn off the event handling mechanism altogether
+  capture:
+    enabled: true
+    templateId: true
+    timing: true
+    message: true
+    causes: true
+    context: true
+    howToFix: true
+    exceptionInfo: true
+    stackTrace: true
+    location: true
+
+  # Options of the message that is returned to the REST caller
+  restResponse:
     templateId: true
     timing: true
     message: true
@@ -11,8 +27,23 @@ error-handling:
     stackTrace: false
     location: true
 
-  writeToLog: true
-  includeInLoggedMessage:
+  # Options specifying if the message should be written
+  # to the log and what information should be recorded
+  log:
+    enabled: true
+    templateId: true
+    timing: true
+    message: true
+    causes: true
+    context: true
+    howToFix: true
+    exceptionInfo: true
+    stackTrace: false
+    location: true
+
+  # Console output features
+  console:
+    enabled: true
     templateId: true
     timing: true
     message: true

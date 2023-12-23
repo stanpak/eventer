@@ -10,19 +10,39 @@ import java.util.Map;
 @org.springframework.context.annotation.Configuration
 @ConfigurationProperties("error-handling")
 public class Configuration {
-    public static Configuration config;
-    public MessageContent includeInRestResponse = new MessageContent();
-    public MessageContent includeInLoggedMessage = new MessageContent();
-    public List<MessageTemplate> templates;
+    private static Configuration config;
     private final MessageContent capture = new MessageContent();
-    private final Map<String, MessageTemplate> templateMap = new HashMap<>();
+    private final MessageContent console = new MessageContent();
+    private MessageContent restResponse = new MessageContent();
+    private MessageContent log = new MessageContent();
+    private List<MessageTemplate> templates;
 
-    public MessageContent getIncludeInRestResponse() {
-        return includeInRestResponse;
+    public static Configuration getConfig() {
+        return config;
     }
 
-    public void setIncludeInRestResponse(MessageContent includeInRestResponse) {
-        this.includeInRestResponse = includeInRestResponse;
+    public MessageContent getConsole() {
+        return console;
+    }
+
+    public MessageContent getLog() {
+        return log;
+    }
+
+    public void setLog(MessageContent log) {
+        this.log = log;
+    }
+
+    public MessageContent getCapture() {
+        return capture;
+    }
+
+    public MessageContent getRestResponse() {
+        return restResponse;
+    }
+
+    public void setRestResponse(MessageContent restResponse) {
+        this.restResponse = restResponse;
     }
 
     public List<MessageTemplate> getTemplates() {
@@ -39,15 +59,24 @@ public class Configuration {
     }
 
     public static class MessageContent {
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        private boolean enabled = true;
         private boolean templateId = true;
-		private boolean timing = true;
-		private boolean message = true;
-		private boolean causes = true;
-		private boolean context = true;
-		private boolean howToFix = true;
-		private boolean exceptionInfo = true;
-		private boolean stackTrace = true;
-		private boolean location = true;
+        private boolean timing = true;
+        private boolean message = true;
+        private boolean causes = true;
+        private boolean context = true;
+        private boolean howToFix = true;
+        private boolean exceptionInfo = true;
+        private boolean stackTrace = true;
+        private boolean location = true;
 
         public boolean isTemplateId() {
             return templateId;

@@ -16,7 +16,7 @@ public class BaseController
 	{
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(exception.message.filterFor(configuration.includeInRestResponse), headers, HttpStatus.I_AM_A_TEAPOT);
+		return new ResponseEntity<>(exception.message.filterFor(configuration.getRestResponse()), headers, HttpStatus.I_AM_A_TEAPOT);
 	}
 
 	@ExceptionHandler({ Exception.class })
@@ -29,7 +29,8 @@ public class BaseController
 		EventMessage message = ec.capture(exception);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new ResponseEntity<>(message.filterFor(configuration.includeInRestResponse), headers, HttpStatus.I_AM_A_TEAPOT);
+		return new ResponseEntity<>(message.filterFor(configuration.getRestResponse()),
+				headers, HttpStatus.I_AM_A_TEAPOT);
 	}
 
 }

@@ -2,13 +2,19 @@ package com.tribium.eventer.framework;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EventCapturer {
 
     private final Configuration configuration;
+    private final Map<String, MessageTemplate> templateMap = new HashMap<>();
 
     public EventCapturer() {
-        this.configuration = Configuration.config;
+        this.configuration = Configuration.getConfig();
+        if(this.configuration.getTemplates()!=null)
+            for(MessageTemplate t: this.configuration.getTemplates())
+                templateMap.put(t.templateId,t);
     }
 
     public EventCapturer(Configuration configuration) {
@@ -57,11 +63,7 @@ public class EventCapturer {
     }
 
     private MessageTemplate findTemplate(String templateId) {
-        if (configuration.templates != null)
-            for (MessageTemplate mt : configuration.templates)
-                if (mt.templateId.equals(templateId))
-                    return mt;
-        return null;
+        return templateMap.get(templateId);
     }
 
     public EventMessage capture(Throwable exception, Object... context) {

@@ -22,4 +22,9 @@ public class EventException extends RuntimeException
 		this.message = mc.capture(templateId,context);
 	}
 
+	public EventException(EventMessage message)
+	{
+		this.message = message;
+	}
+
 }

@@ -1,6 +1,7 @@
 package com.tribium.eventer.tryout;
 
 import com.tribium.eventer.framework.BaseController;
+import com.tribium.eventer.framework.Emitter;
 import com.tribium.eventer.framework.EventException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,4 +30,28 @@ public class SampleController extends BaseController {
         throw new EventException("msg00","myContext");
     }
 
+    @GetMapping("/ok")
+    public String ok(){
+        return "OK";
+    }
+
+    @GetMapping("/emit")
+    public void emit(){
+        Emitter.emit("msg01");
+    }
+
+    @GetMapping("/emitWithContext")
+    public void emitWithContext(){
+        Emitter.emit("msg00","myContext");
+    }
+
+    @GetMapping("/emitThrow")
+    public void emitThrow(){
+        Emitter.emitThrow("msg01");
+    }
+
+    @GetMapping("/emitThrowWithContext")
+    public void emitThrowWithContext(){
+        Emitter.emitThrow("msg00","myContext");
+    }
 }
