@@ -1,5 +1,9 @@
-package com.tribium.eventer.framework;
+package com.tribium.eventer.rest;
 
+import com.tribium.eventer.core.Configuration;
+import com.tribium.eventer.core.EventCapturer;
+import com.tribium.eventer.core.EventException;
+import com.tribium.eventer.core.EventMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

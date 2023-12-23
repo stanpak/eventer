@@ -1,11 +1,9 @@
-package com.tribium.eventer.framework;
+package com.tribium.eventer.core;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @org.springframework.context.annotation.Configuration
 @ConfigurationProperties("error-handling")

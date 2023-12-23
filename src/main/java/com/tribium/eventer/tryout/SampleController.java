@@ -1,8 +1,8 @@
 package com.tribium.eventer.tryout;
 
-import com.tribium.eventer.framework.BaseController;
-import com.tribium.eventer.framework.Emitter;
-import com.tribium.eventer.framework.EventException;
+import com.tribium.eventer.rest.BaseController;
+import com.tribium.eventer.core.Emitter;
+import com.tribium.eventer.core.EventException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

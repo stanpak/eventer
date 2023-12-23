@@ -1,4 +1,4 @@
-package com.tribium.eventer.framework;
+package com.tribium.eventer.core;
 
 public class EventException extends RuntimeException
 {

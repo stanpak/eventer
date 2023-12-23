@@ -1,4 +1,4 @@
-package com.tribium.eventer.framework;
+package com.tribium.eventer.core;
 
 import java.util.ArrayList;
 import java.util.Date;
