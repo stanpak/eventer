@@ -3,6 +3,11 @@ package com.tribium.eventer.core;
 import java.util.List;
 
 public class MessageTemplate {
+    public String templateId;
+    public String message;
+    public List<String> possibleCauses;
+    public List<String> howToFix;
+
     public String getTemplateId() {
         return templateId;
     }
@@ -34,11 +39,4 @@ public class MessageTemplate {
     public void setHowToFix(List<String> howToFix) {
         this.howToFix = howToFix;
     }
-
-    public String templateId;
-    public String message;
-
-    public List<String> possibleCauses;
-
-    public List<String> howToFix;
 }

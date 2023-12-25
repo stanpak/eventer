@@ -61,13 +61,26 @@ Error handling is a part of the software developer’s life which is pushed into
 
 ## What it Should Be
 
-* Rich event information
-* Minimum code
-  * (from dev perspective)
-* Well separated concerns
-* Well configurable
-* Unified across all apps and layers
-* Simple to implement, comprehend, and use
+Below is a list of the things that we could imagine the ideal event handling system should provide, namely:
+
+* **Rich event information**
+
+  We would like to know what happened, when, where and in what circumstances, caused by what and what to do with this etc. In other words: everything that is possible to collect about a given event.
+* **Minimum code**
+
+  From the developer perspective there should as little coding effort as required and no more. There should be little margin for error as well.
+* **Well separated concerns**
+
+  Any design of a framework should observe the rule of separation of concerns so each class has well defined properties and functions that do not interfere or intersect other classes. This allows the modularity, increases the ease of understanding and working with the framework, reducing human error.
+* **Well configurable**
+
+  Anything that can be configurable should be made configurable.
+* **Unified across all apps and layers**
+
+  Possibly compatible between various languages beyond Java - for example JavaScript. So the messages can be easily consimed by the UI.
+* **Simple to implement, comprehend, and use**
+
+  Well, that is self-explanatory.
 
 ## What is in the Message
 
@@ -110,6 +123,10 @@ Now we can try to imagine what we want to achieve by sending the information bac
 
   Sometimes if the event message was caused by another event message, then we can embed it and carry it on with the subsequent message for additional context.
 
+Here is the example of a full message in form of the JSON:
+
+```javascript
+```
 
 ## Design Principles
 
@@ -130,22 +147,117 @@ On the level of the language the events are emitted in two ways:
 ## Configurability
 
 * Definitions of messages can be kept as
-  * enums
-  * externalized (for example, into a .yml file)
+  * **Enums**
+
+    This method is just a way of hardcoding the message templates into the code. It can be useful for systems that can be recompiled frequently after changing the text of messages.
+
+    Since in Java the it is impossible to inherit the enum structure we need to use regular classes. Below is an example of such class definition:
+
+    ```java
+    public class SampleErrorMessage extends EventMessageTemplate {
+        public static SampleErrorMessage Message00 = new SampleErrorMessage("msg00","Error has happened!");
+    
+        public SampleErrorMessage(String templateId, String message) {
+            super(templateId, message);
+        }
+    }
+    ```
+
+    When used in code it can be simply invoked in `Emitted.emit()` method:
+
+    ```java
+    Emitter.emit(SampleErrorMessage.Message00);
+    ```
+
+    \
+  * **Externalized (for example, into a .yml file)**
+
+    If the messages need to be kept in the outside file that can be loaded in runtime and any modifications do not require the recompilation of the code - than use of externalized message templates goes handy.
+
+    One of the method is to keep them in structured fashion in YML files.
+
+    Below is the example of such a message template definition:
+
+    ```yaml
+    error-handling:
+      templates:
+        -
+          templateId: "msg00"
+          message: "Terrible thing just happened, context: %s"
+        -
+          templateId: "msg02"
+          message: "Terrible thing just happened, context: %s"
+    
+    ```
+  * **Database**
+
+    If even greater level of flexibility of modifying the text of message templates is required, these definitions can be kept in the database.
 * The granularity of the event information is configured in the .yml file (@Configuration class):
   * depending on the destination of the message:
     * logging
     * sending back to the client
+    * displaying in the console
+
+    Below is an example of such definition:
+
+    ```yaml
+    error-handling:
+    
+      # Options of the message that is returned to the REST caller
+      restResponse:
+        templateId: true
+        timing: true
+        message: true
+        causes: true
+        context: true
+        howToFix: true
+        exceptionInfo: true
+        stackTrace: false
+        location: true
+    
+    ```
+
+    \
 
 ## How this can work in Java
 
-* One method is to just emit an event
-* The other method is to throw an exception which then emits an event
+* One method is to just emit an event:
+
+  ```java
+  Emitter.amit("msg00");
+  ```
+
+  Above instruction is an example of minimum call from the Java code. The parameter is a ID of the message template. The deferrence to the templates allow externalization of the messages and avoiding hardcoding them in the application’s code.
+* The emission of the event message can have additioal parameters, which are part of the context of the message. These context parameters can be not only attached to the message but also added to a message itself:
+
+  ```javascript
+  Emitter.emit("msg01",var1, var2);
+  ```
+
+  where the message of a template can look like this: `”An error happened, var1: %s, var2: %s”`. You get the idea.
+* If the error happened and we want to emit an error and throw the exception we can do it in 2 ways:
+  * We can throw the exception. If used in Spring Boot application, this should be handled and converted to a message event prior sending it back to the caller.
+  * We can use `Emitter.emitThrow()` method. Behavior is as expected but this time we can not only throw an exception but also use message templating mechanism.
 * **Emit collection of events**
 
   Yet another is to collect events and then emit them (as a collection)
 
   This method is useful especially when the validation needs to be performed and it is very likely that multiple messages will be created and should be sent back in one call.
+
+  Conside following example:
+
+  ```javascript
+  EventMessage m = new EventMessage();
+  m.addMessage("msgTemplateId1",...);
+  m.addMessage("msgTemplateId2",...);
+  Emitter.emit(m);
+  ```
+
+  It embeds two messages into specific final message and then this one is emitted (or thrown back to the caller client if needed).
+
+  This mechanim is especially useful for validation purposes as we can return a list of problems with our data.
+
+  \
 
 ## How this can be handled by UI (caller)
 

@@ -10,11 +10,6 @@ public class EventMessage {
     public List<String> possibleCauses;
 
     public List<String> howToFix;
-
-    public EventMessage(){
-        this.id = UUID.randomUUID().toString();
-    }
-
     public String id;
     public String templateId;
     public String ExceptionClassName;
@@ -23,6 +18,10 @@ public class EventMessage {
     public ExceptionLocation location;
     public ArrayList<Object> stackTrace;
     public ExceptionExceptionCause cause;
+
+    public EventMessage() {
+        this.id = UUID.randomUUID().toString();
+    }
 
     public EventMessage filterFor(Configuration.MessageContent configuration) {
         EventMessage e = new EventMessage();
@@ -59,4 +58,19 @@ public class EventMessage {
         return e;
     }
 
+    @Override
+    public String toString() {
+        return "EventMessage{" +
+                "possibleCauses=" + possibleCauses +
+                ", howToFix=" + howToFix +
+                ", id='" + id + '\'' +
+                ", templateId='" + templateId + '\'' +
+                ", ExceptionClassName='" + ExceptionClassName + '\'' +
+                ", message='" + message + '\'' +
+                ", emittedAt=" + emittedAt +
+                ", location=" + location +
+                ", stackTrace=" + stackTrace +
+                ", cause=" + cause +
+                '}';
+    }
 }

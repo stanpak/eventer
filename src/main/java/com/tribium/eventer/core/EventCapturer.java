@@ -12,9 +12,9 @@ public class EventCapturer {
 
     public EventCapturer() {
         this.configuration = Configuration.getConfig();
-        if(this.configuration.getTemplates()!=null)
-            for(MessageTemplate t: this.configuration.getTemplates())
-                templateMap.put(t.templateId,t);
+        if (this.configuration.getTemplates() != null)
+            for (MessageTemplate t : this.configuration.getTemplates())
+                templateMap.put(t.templateId, t);
     }
 
     public EventCapturer(Configuration configuration) {

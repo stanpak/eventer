@@ -57,14 +57,6 @@ public class Configuration {
     }
 
     public static class MessageContent {
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
         private boolean enabled = true;
         private boolean templateId = true;
         private boolean timing = true;
@@ -75,6 +67,14 @@ public class Configuration {
         private boolean exceptionInfo = true;
         private boolean stackTrace = true;
         private boolean location = true;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
 
         public boolean isTemplateId() {
             return templateId;

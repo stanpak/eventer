@@ -61,8 +61,8 @@ error-handling:
     -
       templateId: "msg01"
       message: "Terrible thing just happened (no context)"
-  #      possibleCauses:
-  #        - "not sure what"
-  #      howToFix:
-  #        - "Write the code again"
-  #        - "Do nothing"
+      #  possibleCauses:
+      #    - "not sure what"
+      #  howToFix:
+      #    - "Write the code again"
+      #    - "Do nothing"
