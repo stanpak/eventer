@@ -383,6 +383,10 @@ When the regular business call is made the 200 OK response is excpected.
 
 When the error happens the 418 response is returned along with the body of the error message.
 
+This HTTP status was chosen specifically so it does not highjacks any other HTTPS status code for reporting the business logic errors and thus it does not obscure any other valid errors that can be reported by the HTTP protocol layer. 
+
+The sample code below should be easy to apply in any JavaScript application that responds to the REST calls returning from the back end.
+
 ```javascript
 try{
   let res = await http.get("http://myapp/myednpoint");
