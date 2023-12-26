@@ -59,14 +59,14 @@ Error handling is a part of the software developer’s life which is pushed into
 * If you want to report that something happened, just emit an event and go on. Emitter.emit()
 * Do not handle errors (exception) unless you need to recove any resources. In such situation try to use “finally” clause and let the other code to handle the rest.
 
-## What it Should Be
+## The Guiding Principles and a Vision
 
 Below is a list of the things that we could imagine the ideal event handling system should provide, namely:
 
 * **Rich event information**
 
   We would like to know what happened, when, where and in what circumstances, caused by what and what to do with this etc. In other words: everything that is possible to collect about a given event.
-* **Minimum code**
+* **Minimum coding effort**
 
   From the developer perspective there should as little coding effort as required and no more. There should be little margin for error as well.
 * **Well separated concerns**
@@ -86,46 +86,72 @@ Below is a list of the things that we could imagine the ideal event handling sys
 
 Now we can try to imagine what we want to achieve by sending the information back to the caller, or stored in the log message etc. These needs can be expressed by various types of properties that the message can carry:
 
-* **ID**
+* **Event ID**
 
-  Unique identification of the message. This is always unique, no matter what is the message.
-* Type of event ID
+  Unique identification of the event in the message. This value is always unique, no matter what is the message (UUID).
 
-  Otherwise the `templateId`. This is the textual ID that represets the type of the message. For example such type may be “File not found”, always with the same textual message plus additional relevant context (like a file name in this scenario).
+
+* **Type of events**
+
+  Various events can be emitted over and over again. For example "File not found" error event may be happening frequently, just with different context (file name). Therefore it may make sense to keep the text of the message externalized in form of a template that later at the message emission it will be found and used to form the message. 
+
+  Type of events is otherwise called as a message template and identified by a string (unique for the application where it is used.) - a `templateId`. 
+  For example such type may be “File not found”, always with the same textual message plus additional relevant context (like a file name in this scenario).
+
+
 * **Category of the event**
 
   Optional categorization of the message. It is used to filter the messages. It may signify the purpose of the message or the severity of the event, etc.
+
+
 * **Textual message**
 
   Textual form of a message with placeholders where the context can be injected where needed.
+
+
 * **When it happened**
 
   Information about temporal context of the event. For example, the timestamp when the message was emitted. It can hold more than that and multiple of timestamps from various stages of event message processing can be recorded.
+
+
 * **Where it happened** (process, thread, class, function, line etc.)
 
   This information is very important as it shows where the emission of the message was initiated. It is generated automatically by the framework.
+
+
 * **Stack trace**
 
   Additional more robust information on what was the sequence of calls that let do the moment when the event was emitted.
+
+
 * **Additional context** (state of variables)
 
   Very important information. In order to find the true cause of the error that resulted with the event message being emitted, the information in the message must carry the contextual information that can be vital in finding the cause of the error. These can be values of variables for example, selected by the developer in anticipation that they can be useful at the later moment.
+
+
 * **Possible causes**
 
   Here we can carry some speculations on what could cause this problem more specifically.
+
+
 * **Hints: How to fix, what to do with this**
 
   In addition to the information on possible cause, we can provide the advice to the user on how to deal with this issue, work around it, where to report it, to whom to escalate, etc.
+
+
 * **Listing multiple messages**
 
   Sometimes the event message can carry multiple aggregated messages. This makes sense if the information in these messages are co-related, as in case of for example of validation messages.
+
+
 * **Embedding the message trail** (if needed)
 
   Sometimes if the event message was caused by another event message, then we can embed it and carry it on with the subsequent message for additional context.
 
 Here is the example of a full message in form of the JSON:
 
-```javascript
+```json
+
 ```
 
 ## Design Principles
@@ -147,9 +173,10 @@ On the level of the language the events are emitted in two ways:
 ## Configurability
 
 * Definitions of messages can be kept as
-  * **Enums**
+  * **Enums (or rather Java constants)**
 
-    This method is just a way of hardcoding the message templates into the code. It can be useful for systems that can be recompiled frequently after changing the text of messages.
+    This method is just a way of hard-coding the message templates into the code. 
+    It can be useful for systems that can be recompiled frequently after changing the text of messages.
 
     Since in Java the it is impossible to inherit the enum structure we need to use regular classes. Below is an example of such class definition:
 
@@ -217,28 +244,53 @@ On the level of the language the events are emitted in two ways:
     
     ```
 
-    \
 
-## How this can work in Java
+## How is it Used in Java Code
 
-* One method is to just emit an event:
+The most common scenario is the situation when the developer wants to add some code that will signal to the outside world (log, console etc.) that something has happened. This can be done by inserting just one method call to just emit an event:
 
-  ```java
-  Emitter.amit("msg00");
-  ```
+```java
+Emitter.amit("msg00");
+```
 
-  Above instruction is an example of minimum call from the Java code. The parameter is a ID of the message template. The deferrence to the templates allow externalization of the messages and avoiding hardcoding them in the application’s code.
-* The emission of the event message can have additioal parameters, which are part of the context of the message. These context parameters can be not only attached to the message but also added to a message itself:
+Above instruction is an example of minimum call from the Java code. The parameter is a ID of the message template. The deferrence to the templates allow externalization of the messages and avoiding hardcoding them in the application’s code.
 
-  ```javascript
-  Emitter.emit("msg01",var1, var2);
-  ```
+Sometimes the developer needs to add some additional context, for example values of some crucial variables that should help to narrow down the source of a problem. 
+In such scenario the emission of the event message can have additioal parameters, which are part of the context of the message. These context parameters can be not only attached to the message but also added to a message itself:
 
-  where the message of a template can look like this: `”An error happened, var1: %s, var2: %s”`. You get the idea.
-* If the error happened and we want to emit an error and throw the exception we can do it in 2 ways:
-  * We can throw the exception. If used in Spring Boot application, this should be handled and converted to a message event prior sending it back to the caller.
-  * We can use `Emitter.emitThrow()` method. Behavior is as expected but this time we can not only throw an exception but also use message templating mechanism.
-* **Emit collection of events**
+```javascript
+Emitter.emit("msg01",var1, var2);
+```
+
+where the message of a template can look like this: `”An error happened, var1: %s, var2: %s”`. You get the idea.
+
+### When the error occured and needs to be reported
+If the error happened and we want to emit an error and throw the exception we can do it in 2 ways:
+  * **We can throw the Java exception.** 
+    
+    If used in Spring Boot application, this should be handled and converted to a message event prior sending it back to the caller.
+
+    ```java
+    throw new RuntimeException("Error just happened!");
+    ```
+    This is very generic and simple method of reporting errors, however it has a drawback that it does not rely on more advanced mechanism of error handling. This is just the Java exception handled by our mechanism to some extent but without templating and other features.
+    
+
+  * **Throw the EventException**
+    
+    This type of exception is already integrated with our framework and when thrown, it will use the message templating mechanism. When handled, the full error information will be reported back to the user.
+    ```java
+    throw new EventException("msg00", var1, var2);
+    ```
+    This method still relies on the code which handles these exception to emit a message.
+    
+
+  * **Using emitThrow()**
+    
+    If we want to not only throw an exeption but emit w message at this point of code we can use `Emitter.emitThrow()` method. Behavior is as expected but this time we can not only throw an exception but also use message templating mechanism.
+    This is the preferred method of reporting the error by the application's code.
+
+### **Emiting collection of events in one message**
 
   Yet another is to collect events and then emit them (as a collection)
 
@@ -257,9 +309,8 @@ On the level of the language the events are emitted in two ways:
 
   This mechanim is especially useful for validation purposes as we can return a list of problems with our data.
 
-  \
 
-## How this can be handled by UI (caller)
+## How to Handle Events by the UI (caller)
 
 Usually the caller is an UI application, likely a JavaScript based.
 
