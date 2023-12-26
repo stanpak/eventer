@@ -12,58 +12,87 @@ Error handling is a part of the software developer’s life which is pushed into
 
 ### Examples of Bad Behavior
 
-* Mixing the business domains or layers
-* Abusing the exception mechanism
-* Lack of centralized error handling
-* Lack of consistency
+* **Mixing the business domains or layers**
+
+  It is a frequent mistake when the REST calls use the HTTP status to report an error, when there something happened in the business logic that prevented the operation from succeeding. For example when something requested by the UI was not found in the database, the back end returns the response 404 Not Found. This is a mistaken use as this status is used by HTTP layer to report that the end point is not recognized. Use of HTTP statuses should be discouraged as it masks the legitimate HTTP problems with business logic related functionality.   
+  
+  Business lgic error or state reporting should be clearly separated from the HTTP error/status reporting.
+
+
+* **Abusing the exception mechanism**
+
+  Another frequent misuse of available error handling mechanisms is reporting trivial (and expected) troubles by the business logic by throwing Java exceptions. For example when certain requested object is not found in the result, instead of returning `null` or empty results or array, the programer throws an exception. It is a mistake as not finding something is legitimate and expected business behavior and should be handled as such. The exceptions should be thrown in situations when something happens outside of the business logic context that is unexpected (file not found, connection broken etc.) and it is a unrecoverable situation that prevents the business operation from succeeding.
+
+
+* **Lack of centralized error handling**
+
+  Handling of errors should not happen at every controller's handling function. This method has various drawbacks, as it creates tons of inconsistent code, where the errors are handled in different ways from function to function. This causes inconsistency, requires additional effort from the programmer and results in waste of valuable time, while introducing human error potential.
+
+
+* **Lack of consistency**
+
+  It was mentioned already, when not standardized, each of the programmer will be implementing their own ways of handling errors according to their knowledge (which vary). Instead we need a predictable way of handling errors that will also free the developer to work on the business logic and not on error handling boilerplate code that obscures the most important part of the code. 
+
 
 ### Other Transgressions
 
 * **No standard of a message**
 
   Each layer (participant) uses its own format of keeping information about the event. This creates inconsistency o reporting about the events. Joining the events in a consistent lineage is also hard as not always the timing information is available.
+
+
 * **No standards for handling events**
 
   Each layer (participant) uses its own specific handling procedures (i.e. some handle exception some not so no information is preserved). Most prevalent way is passing that information via exceptions body, but logging the information into the database or in file system is also a popular alternative.
+
+
 * **Separation of event handling from logging**
 
   Mechanism of logging and handling of exceptions and other event types is separate from each other.
 
   That requires the developer to write proper code for handling a message and to decide if it should be logged or not. Logging is just a particular way (of many) of handling the events.
+
+
 * **Little support for developer**
 
   In each case the decision of loggin and event is in developers’ hands and is laborious, mechanistic and error prone process (which in effect causes that logging all details of exception is neglected in many cases).
+
+
 * **No context infromation is preserved**
 
   There is no standard way of keeping context describing circumstances of an event (exception) which is essential to properly diagnose a problem at question.
+
+
 * **Messages are hardcoded**
 
   Practically all messages that are generated in the code are hardcoded by the developers. That provides no way of improving the content of the message without release of the system.
+
+
 * **Lack of quality management process**
 
   There is no place in the development process where the developer is obliged to (besides of commenting and describing the code properly) provide extensive error/event handling information that can be essential for diagnosing problems in complex distributed systems.
+
+
 * **Lack of coordination of flow in distributed environment**
 
   Systems are distributed and there is no easy way to corroborate all events in order to analyse the properly circumstances of an event and identify causes of the problem.
+
+
 * **No proper mechanism of managing the message granularity**
 
   There is no need to always pass ALL information about the history of transaction to the originating participant. Thus about what information is passed to the originator is decided not by it but by the underlying system which does not know the needs of the originator. Recipient of the event information should decide about granularity of the information about the event it should get for analysis. •No convenient storage of event history There is no convenient storage of the event information that would be available for all layers/participants.
+
+
 * **No standard way of analysing complex information about the problem**
 
   If an event happens there is no one way of analysing that information from one point of the complex distributed system.
 
 
-## Rules
-
-* If you have a non-recoverable situation, use the Emitter.throw() method.
-* If you want to report that something happened, just emit an event and go on. Emitter.emit()
-* Do not handle errors (exception) unless you need to recove any resources. In such situation try to use “finally” clause and let the other code to handle the rest.
-
 ## The Guiding Principles and a Vision
 
 Below is a list of the things that we could imagine the ideal event handling system should provide, namely:
 
-* **Rich event information**
+### Rich event information
 
   We would like to know what happened, when, where and in what circumstances, caused by what and what to do with this etc. In other words: everything that is possible to collect about a given event.
 * **Minimum coding effort**
@@ -82,95 +111,15 @@ Below is a list of the things that we could imagine the ideal event handling sys
 
   Well, that is self-explanatory.
 
-## What is in the Message
-
-Now we can try to imagine what we want to achieve by sending the information back to the caller, or stored in the log message etc. These needs can be expressed by various types of properties that the message can carry:
-
-* **Event ID**
-
-  Unique identification of the event in the message. This value is always unique, no matter what is the message (UUID).
-
-
-* **Type of events**
-
-  Various events can be emitted over and over again. For example "File not found" error event may be happening frequently, just with different context (file name). Therefore it may make sense to keep the text of the message externalized in form of a template that later at the message emission it will be found and used to form the message. 
-
-  Type of events is otherwise called as a message template and identified by a string (unique for the application where it is used.) - a `templateId`. 
-  For example such type may be “File not found”, always with the same textual message plus additional relevant context (like a file name in this scenario).
-
-
-* **Category of the event**
-
-  Optional categorization of the message. It is used to filter the messages. It may signify the purpose of the message or the severity of the event, etc.
-
-
-* **Textual message**
-
-  Textual form of a message with placeholders where the context can be injected where needed.
-
-
-* **When it happened**
-
-  Information about temporal context of the event. For example, the timestamp when the message was emitted. It can hold more than that and multiple of timestamps from various stages of event message processing can be recorded.
-
-
-* **Where it happened** (process, thread, class, function, line etc.)
-
-  This information is very important as it shows where the emission of the message was initiated. It is generated automatically by the framework.
-
-
-* **Stack trace**
-
-  Additional more robust information on what was the sequence of calls that let do the moment when the event was emitted.
-
-
-* **Additional context** (state of variables)
-
-  Very important information. In order to find the true cause of the error that resulted with the event message being emitted, the information in the message must carry the contextual information that can be vital in finding the cause of the error. These can be values of variables for example, selected by the developer in anticipation that they can be useful at the later moment.
-
-
-* **Possible causes**
-
-  Here we can carry some speculations on what could cause this problem more specifically.
-
-
-* **Hints: How to fix, what to do with this**
-
-  In addition to the information on possible cause, we can provide the advice to the user on how to deal with this issue, work around it, where to report it, to whom to escalate, etc.
-
-
-* **Listing multiple messages**
-
-  Sometimes the event message can carry multiple aggregated messages. This makes sense if the information in these messages are co-related, as in case of for example of validation messages.
-
-
-* **Embedding the message trail** (if needed)
-
-  Sometimes if the event message was caused by another event message, then we can embed it and carry it on with the subsequent message for additional context.
-
-Here is the example of a full message in form of the JSON:
-
-```json
-
-```
-
-## Design Principles
-
-* **Simplicity of code**
-
-  This is the first and umost important one, as the code is the place where the event are emitted. Therefore, the process of emitting the messages should be as little obstructive as it is possible. And it should also eliminate additional non-business logic code as possible.
-* Completness of information
-* Flexibility of use
-* Reasonable performance
-
-## Emitting Events
+### Simplicity of Use
+This is the first and most important one, as the code is the place where the event are emitted. Therefore, the process of emitting the messages should be as little obstructive as it is possible. And it should also eliminate additional non-business logic code as possible.
 
 On the level of the language the events are emitted in two ways:
 
 * by calling an emit() function, or
 * by throwing the exception EventException().
 
-## Configurability
+### Flexibility through Configurability
 
 * Definitions of messages can be kept as
   * **Enums (or rather Java constants)**
@@ -243,7 +192,84 @@ On the level of the language the events are emitted in two ways:
         location: true
     
     ```
+    
+* **Reasonable performance**
 
+## What is in the Message
+
+Now we can try to imagine what we want to achieve by sending the information back to the caller, or stored in the log message etc. These needs can be expressed by various types of properties that the message can carry:
+
+* **Event ID**
+
+  Unique identification of the event in the message. This value is always unique, no matter what is the message (UUID).
+
+
+* **Type of events**
+
+  Various events can be emitted over and over again. For example "File not found" error event may be happening frequently, just with different context (file name). Therefore it may make sense to keep the text of the message externalized in form of a template that later at the message emission it will be found and used to form the message.
+
+  Type of events is otherwise called as a message template and identified by a string (unique for the application where it is used.) - a `templateId`.
+  For example such type may be “File not found”, always with the same textual message plus additional relevant context (like a file name in this scenario).
+
+
+* **Category of the event**
+
+  Optional categorization of the message. It is used to filter the messages. It may signify the purpose of the message or the severity of the event, etc.
+
+
+* **Textual message**
+
+  Textual form of a message with placeholders where the context can be injected where needed.
+
+
+* **When it happened**
+
+  Information about temporal context of the event. For example, the timestamp when the message was emitted. It can hold more than that and multiple of timestamps from various stages of event message processing can be recorded.
+
+
+* **Where it happened** (process, thread, class, function, line etc.)
+
+  This information is very important as it shows where the emission of the message was initiated. It is generated automatically by the framework.
+
+
+* **Stack trace**
+
+  Additional more robust information on what was the sequence of calls that let do the moment when the event was emitted.
+
+
+* **Additional context** (state of variables)
+
+  Very important information. In order to find the true cause of the error that resulted with the event message being emitted, the information in the message must carry the contextual information that can be vital in finding the cause of the error. These can be values of variables for example, selected by the developer in anticipation that they can be useful at the later moment.
+
+
+* **Possible causes**
+
+  Here we can carry some speculations on what could cause this problem more specifically.
+
+
+* **Hints: How to fix, what to do with this**
+
+  In addition to the information on possible cause, we can provide the advice to the user on how to deal with this issue, work around it, where to report it, to whom to escalate, etc.
+
+
+* **Listing multiple messages**
+
+  Sometimes the event message can carry multiple aggregated messages. This makes sense if the information in these messages are co-related, as in case of for example of validation messages.
+
+
+* **Embedding the message trail** (if needed)
+
+  Sometimes if the event message was caused by another event message, then we can embed it and carry it on with the subsequent message for additional context.
+
+Here is the example of a full message in form of the JSON:
+
+```json
+
+```
+
+
+
+* Completness of information
 
 ## How is it Used in Java Code
 
@@ -307,7 +333,7 @@ If the error happened and we want to emit an error and throw the exception we ca
 
   It embeds two messages into specific final message and then this one is emitted (or thrown back to the caller client if needed).
 
-  This mechanim is especially useful for validation purposes as we can return a list of problems with our data.
+  This mechanism is especially useful for validation purposes as we can return a list of problems with our data.
 
 
 ## How to Handle Events by the UI (caller)
@@ -332,3 +358,8 @@ try{
 As this is the only way of sending back the error information the UI developers can create one standardized way of handling these errors and decide which parts of the message and how they are presented to the End User.
 
 
+## Rules on How to Code
+Here are some helpful rules on how to use this framework when working on your code:
+* Rule #1: If you have a non-recoverable situation, use the Emitter.throw() method.
+* Rule #2: If you want to report that something happened, just emit an event and go on. Emitter.emit()
+* Rule #3: Do not handle errors (exception) unless you need to recover any resources. In such situation try to use “finally” clause and let the other code to handle the rest.
