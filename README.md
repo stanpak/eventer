@@ -299,7 +299,7 @@ Here is the example of a full message in form of the JSON:
         "com.tribium.eventer.core.EventCapturer.capture(EventCapturer.java:48)",
         "com.tribium.eventer.core.Emitter._emit(Emitter.java:22)",
         "com.tribium.eventer.core.Emitter.emitThrow(Emitter.java:43)",
-        ...
+        "...",
         "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)",
         "java.base/java.lang.Thread.run(Thread.java:1583)"
     ],
