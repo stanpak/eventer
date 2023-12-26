@@ -92,21 +92,31 @@ Error handling is a part of the software developer’s life which is pushed into
 
 Below is a list of the things that we could imagine the ideal event handling system should provide, namely:
 
-### Rich event information
+* **Rich event information**
 
   We would like to know what happened, when, where and in what circumstances, caused by what and what to do with this etc. In other words: everything that is possible to collect about a given event.
+
+
 * **Minimum coding effort**
 
   From the developer perspective there should as little coding effort as required and no more. There should be little margin for error as well.
+
+
 * **Well separated concerns**
 
   Any design of a framework should observe the rule of separation of concerns so each class has well defined properties and functions that do not interfere or intersect other classes. This allows the modularity, increases the ease of understanding and working with the framework, reducing human error.
+
+
 * **Well configurable**
 
   Anything that can be configurable should be made configurable.
+
+
 * **Unified across all apps and layers**
 
   Possibly compatible between various languages beyond Java - for example JavaScript. So the messages can be easily consimed by the UI.
+
+
 * **Simple to implement, comprehend, and use**
 
   Well, that is self-explanatory.
@@ -119,9 +129,13 @@ On the level of the language the events are emitted in two ways:
 * by calling an emit() function, or
 * by throwing the exception EventException().
 
-### Flexibility through Configurability
+### Flexibility through Configuration
 
-* Definitions of messages can be kept as
+One of the method of achieving the goal of flexibility is to allow high level of confuguring the way in how the exevits are propagated and what the messages contain, etc. 
+
+#### Message Template Definitions
+
+The Ddefinitions of messages can be kept in following forms:
   * **Enums (or rather Java constants)**
 
     This method is just a way of hard-coding the message templates into the code. 
@@ -145,7 +159,6 @@ On the level of the language the events are emitted in two ways:
     Emitter.emit(SampleErrorMessage.Message00);
     ```
 
-    \
   * **Externalized (for example, into a .yml file)**
 
     If the messages need to be kept in the outside file that can be loaded in runtime and any modifications do not require the recompilation of the code - than use of externalized message templates goes handy.
@@ -168,7 +181,10 @@ On the level of the language the events are emitted in two ways:
   * **Database**
 
     If even greater level of flexibility of modifying the text of message templates is required, these definitions can be kept in the database.
-* The granularity of the event information is configured in the .yml file (@Configuration class):
+
+#### Event Message Granularity
+
+The granularity of the event information is configured in the .yml file (@Configuration class):
   * depending on the destination of the message:
     * logging
     * sending back to the client
@@ -267,10 +283,6 @@ Here is the example of a full message in form of the JSON:
 
 ```
 
-
-
-* Completness of information
-
 ## How is it Used in Java Code
 
 The most common scenario is the situation when the developer wants to add some code that will signal to the outside world (log, console etc.) that something has happened. This can be done by inserting just one method call to just emit an event:
@@ -335,7 +347,6 @@ If the error happened and we want to emit an error and throw the exception we ca
 
   This mechanism is especially useful for validation purposes as we can return a list of problems with our data.
 
-
 ## How to Handle Events by the UI (caller)
 
 Usually the caller is an UI application, likely a JavaScript based.
@@ -357,8 +368,7 @@ try{
 
 As this is the only way of sending back the error information the UI developers can create one standardized way of handling these errors and decide which parts of the message and how they are presented to the End User.
 
-
-## Rules on How to Code
+## Simple Rules on How to Code
 Here are some helpful rules on how to use this framework when working on your code:
 * Rule #1: If you have a non-recoverable situation, use the Emitter.throw() method.
 * Rule #2: If you want to report that something happened, just emit an event and go on. Emitter.emit()
