@@ -280,7 +280,35 @@ Now we can try to imagine what we want to achieve by sending the information bac
 Here is the example of a full message in form of the JSON:
 
 ```json
-
+{
+    "id": "b4e36462-f27a-4fd5-9b13-b5b87bd47406",
+    "templateId": "msg01",
+    "message": "Terrible thing just happened (no context)",
+    "emittedAt": "2023-12-26T17:53:02.023+00:00",
+    "location": {
+        "hostname": "staszek-Latitude-5511",
+        "processId": "358008@staszek-Latitude-5511",
+        "file": "Thread.java",
+        "function": "getStackTrace",
+        "line": 2450,
+        "class": "java.lang.Thread",
+        "native": false
+    },
+    "stackTrace": [
+        "java.base/java.lang.Thread.getStackTrace(Thread.java:2450)",
+        "com.tribium.eventer.core.EventCapturer.capture(EventCapturer.java:48)",
+        "com.tribium.eventer.core.Emitter._emit(Emitter.java:22)",
+        "com.tribium.eventer.core.Emitter.emitThrow(Emitter.java:43)",
+        ...
+        "org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)",
+        "java.base/java.lang.Thread.run(Thread.java:1583)"
+    ],
+    "cause": "<Here there is a chain of exceptions when this messgae is thrown as a result of other exceptions.>",
+    "possibleCauses": ["<List of description of various possible causes - intended to be displayed to the user>"],
+    "howToFix": ["<List of tips how to resolve this problem, whoe should be notified, how to escalate, etc.>"],
+    "ExceptionClassName": "<Name of the exception if this event was triggered by throwing an exception>",
+    "messages": [<If this message is in fact an aggregation of multiple messages, here they can be listed, along with additional context.>]
+}
 ```
 
 ## How is it Used in Java Code

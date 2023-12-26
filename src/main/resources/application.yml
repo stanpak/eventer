@@ -24,7 +24,7 @@ error-handling:
     context: true
     howToFix: true
     exceptionInfo: true
-    stackTrace: false
+    stackTrace: true
     location: true
 
   # Options specifying if the message should be written
