@@ -402,6 +402,6 @@ As this is the only way of sending back the error information the UI developers 
 
 ## Simple Rules on How to Code
 Here are some helpful rules on how to use this framework when working on your code:
-* Rule #1: If you have a non-recoverable situation, use the Emitter.throw() method.
-* Rule #2: If you want to report that something happened, just emit an event and go on. Emitter.emit()
-* Rule #3: Do not handle errors (exception) unless you need to recover any resources. In such situation try to use “finally” clause and let the other code to handle the rest.
+* **Rule #1**: If you have a non-recoverable situation, use the `Emitter.emitThrow()` method.
+* **Rule #2**: If you want to report that something happened, but it not a situation that prevents your operation to be finished, just emit an event (`Emitter.emit()`) and go on.
+* **Rule #3**: Do not handle errors (exception) unless you need to recover any resources. In such situation try to use “finally” clause and let the other code to handle the rest.
