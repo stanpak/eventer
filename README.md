@@ -307,7 +307,7 @@ Here is the example of a full message in form of the JSON:
     "possibleCauses": ["<List of description of various possible causes - intended to be displayed to the user>"],
     "howToFix": ["<List of tips how to resolve this problem, whoe should be notified, how to escalate, etc.>"],
     "ExceptionClassName": "<Name of the exception if this event was triggered by throwing an exception>",
-    "messages": [<If this message is in fact an aggregation of multiple messages, here they can be listed, along with additional context.>]
+    "messages": ["<If this message is in fact an aggregation of multiple messages, here they can be listed, along with additional context.>"]
 }
 ```
 
