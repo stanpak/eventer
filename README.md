@@ -1,21 +1,18 @@
 # Eventer - the Comprehensive Event and Error Handling Framework
 
+> This document is still under construction.
+
 
 ## Symptoms of a Problem
 
 Did you ever wondered why your error handling in Java always sucks? Plenty of code written every day trying endlessly to try and catch the errors and then report it and push forward etc. Well it can be done better than that. In fact much better. And the method of doing so id described in this document.
 
-### “Technical Debt“ is a Bad Analogy
-
-Error handling is a part of the software developer’s life which is pushed into back of any work that is done. Proper reporting errors and any other noteworthy situations is usually left to be resolved at the end of the development cycle. Unfortunately, then when most of the code is done it is too late to make considerable changes in this matter because the code tends to get solidified as lava block. This makes any later changes almost impossible to be done.
-
-
 ### Examples of Bad Behavior
 
 * **Mixing the business domains or layers**
 
-  It is a frequent mistake when the REST calls use the HTTP status to report an error, when there something happened in the business logic that prevented the operation from succeeding. For example when something requested by the UI was not found in the database, the back end returns the response 404 Not Found. This is a mistaken use as this status is used by HTTP layer to report that the end point is not recognized. Use of HTTP statuses should be discouraged as it masks the legitimate HTTP problems with business logic related functionality.   
-  
+  It is a frequent mistake when the REST calls use the HTTP status to report an error, when there something happened in the business logic that prevented the operation from succeeding. For example when something requested by the UI was not found in the database, the back end returns the response 404 Not Found. This is a mistaken use as this status is used by HTTP layer to report that the end point is not recognized. Use of HTTP statuses should be discouraged as it masks the legitimate HTTP problems with business logic related functionality.
+
   Business lgic error or state reporting should be clearly separated from the HTTP error/status reporting.
 
 
@@ -31,7 +28,7 @@ Error handling is a part of the software developer’s life which is pushed into
 
 * **Lack of consistency**
 
-  It was mentioned already, when not standardized, each of the programmer will be implementing their own ways of handling errors according to their knowledge (which vary). Instead we need a predictable way of handling errors that will also free the developer to work on the business logic and not on error handling boilerplate code that obscures the most important part of the code. 
+  It was mentioned already, when not standardized, each of the programmer will be implementing their own ways of handling errors according to their knowledge (which vary). Instead we need a predictable way of handling errors that will also free the developer to work on the business logic and not on error handling boilerplate code that obscures the most important part of the code.
 
 
 ### Other Transgressions
@@ -122,6 +119,7 @@ Below is a list of the things that we could imagine the ideal event handling sys
   Well, that is self-explanatory.
 
 ### Simplicity of Use
+
 This is the first and most important one, as the code is the place where the event are emitted. Therefore, the process of emitting the messages should be as little obstructive as it is possible. And it should also eliminate additional non-business logic code as possible.
 
 On the level of the language the events are emitted in two ways:
@@ -131,84 +129,84 @@ On the level of the language the events are emitted in two ways:
 
 ### Flexibility through Configuration
 
-One of the method of achieving the goal of flexibility is to allow high level of confuguring the way in how the exevits are propagated and what the messages contain, etc. 
+One of the method of achieving the goal of flexibility is to allow high level of confuguring the way in how the exevits are propagated and what the messages contain, etc.
 
 #### Message Template Definitions
 
 The Ddefinitions of messages can be kept in following forms:
-  * **Enums (or rather Java constants)**
 
-    This method is just a way of hard-coding the message templates into the code. 
-    It can be useful for systems that can be recompiled frequently after changing the text of messages.
+* **Enums (or rather Java constants)**
 
-    Since in Java the it is impossible to inherit the enum structure we need to use regular classes. Below is an example of such class definition:
+  This method is just a way of hard-coding the message templates into the code.
+  It can be useful for systems that can be recompiled frequently after changing the text of messages.
 
-    ```java
-    public class SampleErrorMessage extends EventMessageTemplate {
-        public static SampleErrorMessage Message00 = new SampleErrorMessage("msg00","Error has happened!");
-    
-        public SampleErrorMessage(String templateId, String message) {
-            super(templateId, message);
-        }
-    }
-    ```
+  Since in Java the it is impossible to inherit the enum structure we need to use regular classes. Below is an example of such class definition:
 
-    When used in code it can be simply invoked in `Emitted.emit()` method:
+  ```java
+  public class SampleErrorMessage extends EventMessageTemplate {
+      public static SampleErrorMessage Message00 = new SampleErrorMessage("msg00","Error has happened!");
+  
+      public SampleErrorMessage(String templateId, String message) {
+          super(templateId, message);
+      }
+  }
+  ```
 
-    ```java
-    Emitter.emit(SampleErrorMessage.Message00);
-    ```
+  When used in code it can be simply invoked in `Emitted.emit()` method:
 
-  * **Externalized (for example, into a .yml file)**
+  ```java
+  Emitter.emit(SampleErrorMessage.Message00);
+  ```
+* **Externalized (for example, into a .yml file)**
 
-    If the messages need to be kept in the outside file that can be loaded in runtime and any modifications do not require the recompilation of the code - than use of externalized message templates goes handy.
+  If the messages need to be kept in the outside file that can be loaded in runtime and any modifications do not require the recompilation of the code - than use of externalized message templates goes handy.
 
-    One of the method is to keep them in structured fashion in YML files.
+  One of the method is to keep them in structured fashion in YML files.
 
-    Below is the example of such a message template definition:
+  Below is the example of such a message template definition:
 
-    ```yaml
-    error-handling:
-      templates:
-        -
-          templateId: "msg00"
-          message: "Terrible thing just happened, context: %s"
-        -
-          templateId: "msg02"
-          message: "Terrible thing just happened, context: %s"
-    
-    ```
-  * **Database**
+  ```yaml
+  error-handling:
+    templates:
+      -
+        templateId: "msg00"
+        message: "Terrible thing just happened, context: %s"
+      -
+        templateId: "msg02"
+        message: "Terrible thing just happened, context: %s"
+  
+  ```
+* **Database**
 
-    If even greater level of flexibility of modifying the text of message templates is required, these definitions can be kept in the database.
+  If even greater level of flexibility of modifying the text of message templates is required, these definitions can be kept in the database.
 
 #### Event Message Granularity
 
 The granularity of the event information is configured in the .yml file (@Configuration class):
-  * depending on the destination of the message:
-    * logging
-    * sending back to the client
-    * displaying in the console
 
-    Below is an example of such definition:
+* depending on the destination of the message:
+  * logging
+  * sending back to the client
+  * displaying in the console
 
-    ```yaml
-    error-handling:
-    
-      # Options of the message that is returned to the REST caller
-      restResponse:
-        templateId: true
-        timing: true
-        message: true
-        causes: true
-        context: true
-        howToFix: true
-        exceptionInfo: true
-        stackTrace: false
-        location: true
-    
-    ```
-    
+  Below is an example of such definition:
+
+  ```yaml
+  error-handling:
+  
+    # Options of the message that is returned to the REST caller
+    restResponse:
+      templateId: true
+      timing: true
+      message: true
+      causes: true
+      context: true
+      howToFix: true
+      exceptionInfo: true
+      stackTrace: false
+      location: true
+  
+  ```
 * **Reasonable performance**
 
 ## What is in the Message
@@ -321,7 +319,7 @@ Emitter.amit("msg00");
 
 Above instruction is an example of minimum call from the Java code. The parameter is a ID of the message template. The deferrence to the templates allow externalization of the messages and avoiding hardcoding them in the application’s code.
 
-Sometimes the developer needs to add some additional context, for example values of some crucial variables that should help to narrow down the source of a problem. 
+Sometimes the developer needs to add some additional context, for example values of some crucial variables that should help to narrow down the source of a problem.
 In such scenario the emission of the event message can have additioal parameters, which are part of the context of the message. These context parameters can be not only attached to the message but also added to a message itself:
 
 ```javascript
@@ -331,49 +329,50 @@ Emitter.emit("msg01",var1, var2);
 where the message of a template can look like this: `”An error happened, var1: %s, var2: %s”`. You get the idea.
 
 ### When the error occured and needs to be reported
+
 If the error happened and we want to emit an error and throw the exception we can do it in 2 ways:
-  * **We can throw the Java exception.** 
-    
-    If used in Spring Boot application, this should be handled and converted to a message event prior sending it back to the caller.
 
-    ```java
-    throw new RuntimeException("Error just happened!");
-    ```
-    This is very generic and simple method of reporting errors, however it has a drawback that it does not rely on more advanced mechanism of error handling. This is just the Java exception handled by our mechanism to some extent but without templating and other features.
-    
+* **We can throw the Java exception.**
 
-  * **Throw the EventException**
-    
-    This type of exception is already integrated with our framework and when thrown, it will use the message templating mechanism. When handled, the full error information will be reported back to the user.
-    ```java
-    throw new EventException("msg00", var1, var2);
-    ```
-    This method still relies on the code which handles these exception to emit a message.
-    
+  If used in Spring Boot application, this should be handled and converted to a message event prior sending it back to the caller.
 
-  * **Using emitThrow()**
-    
-    If we want to not only throw an exeption but emit w message at this point of code we can use `Emitter.emitThrow()` method. Behavior is as expected but this time we can not only throw an exception but also use message templating mechanism.
-    This is the preferred method of reporting the error by the application's code.
+  ```java
+  throw new RuntimeException("Error just happened!");
+  ```
+
+  This is very generic and simple method of reporting errors, however it has a drawback that it does not rely on more advanced mechanism of error handling. This is just the Java exception handled by our mechanism to some extent but without templating and other features.
+* **Throw the EventException**
+
+  This type of exception is already integrated with our framework and when thrown, it will use the message templating mechanism. When handled, the full error information will be reported back to the user.
+
+  ```java
+  throw new EventException("msg00", var1, var2);
+  ```
+
+  This method still relies on the code which handles these exception to emit a message.
+* **Using emitThrow()**
+
+  If we want to not only throw an exeption but emit w message at this point of code we can use `Emitter.emitThrow()` method. Behavior is as expected but this time we can not only throw an exception but also use message templating mechanism.
+  This is the preferred method of reporting the error by the application's code.
 
 ### **Emiting collection of events in one message**
 
-  Yet another is to collect events and then emit them (as a collection)
+Yet another is to collect events and then emit them (as a collection)
 
-  This method is useful especially when the validation needs to be performed and it is very likely that multiple messages will be created and should be sent back in one call.
+This method is useful especially when the validation needs to be performed and it is very likely that multiple messages will be created and should be sent back in one call.
 
-  Conside following example:
+Conside following example:
 
-  ```javascript
-  EventMessage m = new EventMessage();
-  m.addMessage("msgTemplateId1",...);
-  m.addMessage("msgTemplateId2",...);
-  Emitter.emit(m);
-  ```
+```javascript
+EventMessage m = new EventMessage();
+m.addMessage("msgTemplateId1",...);
+m.addMessage("msgTemplateId2",...);
+Emitter.emit(m);
+```
 
-  It embeds two messages into specific final message and then this one is emitted (or thrown back to the caller client if needed).
+It embeds two messages into specific final message and then this one is emitted (or thrown back to the caller client if needed).
 
-  This mechanism is especially useful for validation purposes as we can return a list of problems with our data.
+This mechanism is especially useful for validation purposes as we can return a list of problems with our data.
 
 ## How to Handle Events by the UI (caller)
 
@@ -383,7 +382,7 @@ When the regular business call is made the 200 OK response is excpected.
 
 When the error happens the 418 response is returned along with the body of the error message.
 
-This HTTP status was chosen specifically so it does not highjacks any other HTTPS status code for reporting the business logic errors and thus it does not obscure any other valid errors that can be reported by the HTTP protocol layer. 
+This HTTP status was chosen specifically so it does not highjacks any other HTTPS status code for reporting the business logic errors and thus it does not obscure any other valid errors that can be reported by the HTTP protocol layer.
 
 The sample code below should be easy to apply in any JavaScript application that responds to the REST calls returning from the back end.
 
@@ -401,7 +400,11 @@ try{
 As this is the only way of sending back the error information the UI developers can create one standardized way of handling these errors and decide which parts of the message and how they are presented to the End User.
 
 ## Simple Rules on How to Code
+
 Here are some helpful rules on how to use this framework when working on your code:
+
 * **Rule #1**: If you have a non-recoverable situation, use the `Emitter.emitThrow()` method.
 * **Rule #2**: If you want to report that something happened, but it not a situation that prevents your operation to be finished, just emit an event (`Emitter.emit()`) and go on.
 * **Rule #3**: Do not handle errors (exception) unless you need to recover any resources. In such situation try to use “finally” clause and let the other code to handle the rest.
+
+
