@@ -355,9 +355,9 @@ If the error happened and we want to emit an error and throw the exception we ca
   If we want to not only throw an exeption but emit w message at this point of code we can use `Emitter.emitThrow()` method. Behavior is as expected but this time we can not only throw an exception but also use message templating mechanism.
   This is the preferred method of reporting the error by the application's code.
 
-### **Emiting collection of events in one message**
+### **Embedding collection of messages in one event message**
 
-Yet another is to collect events and then emit them (as a collection)
+Yet another is to collect events and then emit them (as a collection).
 
 This method is useful especially when the validation needs to be performed and it is very likely that multiple messages will be created and should be sent back in one call.
 
@@ -373,6 +373,15 @@ Emitter.emit(m);
 It embeds two messages into specific final message and then this one is emitted (or thrown back to the caller client if needed).
 
 This mechanism is especially useful for validation purposes as we can return a list of problems with our data.
+
+If the creating the templates for multiple messages (i.e. for validation purposes) is not required, they can be simply hardcoded as in the example below:
+
+```javascript
+ EventMessage m = new EventMessage();
+m.addMessageText("The property 'name' must have value.");
+m.addMessageText("The property 'id' must be provided.");
+Emitter.emit(m);
+```
 
 ## How to Handle Events by the UI (caller)
 
