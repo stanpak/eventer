@@ -13,7 +13,7 @@ Did you ever wondered why your error handling in Java always sucks? Plenty of co
 
   It is a frequent mistake when the REST calls use the HTTP status to report an error, when there something happened in the business logic that prevented the operation from succeeding. For example when something requested by the UI was not found in the database, the back end returns the response 404 Not Found. This is a mistaken use as this status is used by HTTP layer to report that the end point is not recognized. Use of HTTP statuses should be discouraged as it masks the legitimate HTTP problems with business logic related functionality.
 
-  Business lgic error or state reporting should be clearly separated from the HTTP error/status reporting.
+  Business logic error or state reporting should be clearly separated from the HTTP error/status reporting.
 
 
 * **Abusing the exception mechanism**
@@ -188,6 +188,9 @@ The Ddefinitions of messages can be kept in following forms:
 
 #### Event Message Granularity
 
+It is important for the messages to have different level of granularity of content, depending on the situation it is used for. For example we may want to report all of the details in the system log for future analysis, display shorter version in the console and just sent very basic version to UI, stripped from any internal technical details, which could be potentially be used by attackers if available to a larger public. The ID of the event is always sent and availble so we can use it to find the entry in the log for future analysis. The log entries should be rich in details so they can serve as a treasure trove for any trouble shooter.
+
+
 The granularity of the event information is configured in the .yml file (@Configuration class):
 
 * depending on the destination of the message:
@@ -213,7 +216,12 @@ The granularity of the event information is configured in the .yml file (@Config
       location: true
   
   ```
-* **Reasonable performance**
+
+#### Reasonable performance
+
+We expect the framework to operate efficiently and to not to perform operations unnecessarily.
+
+> TODO: Need to elaborate on this further in the future.
 
 ## What is in the Message
 
@@ -221,7 +229,7 @@ Now we can try to imagine what we want to achieve by sending the information bac
 
 * **Event ID**
 
-  Unique identification of the event in the message. This value is always unique, no matter what is the message (UUID).
+  Unique identification of the event in the message. This value is always unique, no matter what is the message (UUID). Later this bit of information can be used to find a particular message in the system log.
 
 
 * **Type of events**
@@ -322,10 +330,18 @@ Here is the example of a full message in form of the JSON:
 The most common scenario is the situation when the developer wants to add some code that will signal to the outside world (log, console etc.) that something has happened. This can be done by inserting just one method call to just emit an event:
 
 ```java
-Emitter.amit("msg00");
+Emitter.emit("msg00");
 ```
 
 Above instruction is an example of minimum call from the Java code. The parameter is a ID of the message template. The deferrence to the templates allow externalization of the messages and avoiding hardcoding them in the application’s code.
+
+
+If you do not want to bother with creating the message templates for events, you may just define the message in code directly:
+
+```javascript
+ Emitter.emitMessage("New instance of very important class has been created here.");
+```
+
 
 Sometimes the developer needs to add some additional context, for example values of some crucial variables that should help to narrow down the source of a problem.
 In such scenario the emission of the event message can have additioal parameters, which are part of the context of the message. These context parameters can be not only attached to the message but also added to a message itself:
@@ -335,6 +351,13 @@ Emitter.emit("msg01",var1, var2);
 ```
 
 where the message of a template can look like this: `”An error happened, var1: %s, var2: %s”`. You get the idea.
+
+Alternatively you may choose to hardcode the message text in place instead :
+
+```javascript
+Emitter.emitMessage("This is my direct message here. var1:%s, var2:%s", var1, var2);
+```
+
 
 ### When the error occured and needs to be reported
 
@@ -422,9 +445,9 @@ Here are some helpful rules on how to use this framework when working on your co
 
 * **Rule #1**: If you have a non-recoverable situation, use the `Emitter.emitThrow()` method or throw the `EventException` exception. They are interchangeable.
 * **Rule #2**: If you want to report that something happened, but it not a situation that prevents your operation to be finished, just emit an event (`Emitter.emit()`) and go on.
-* **Rule #3**: Do not handle errors (exception) unless you need to recover any resources. Let them go through the system and be handled by upper layers if it is OK to cease abruptly your code execution (which is the most cases). In the situation when some resources need to be released use `finally` clause and let the other code to handle the rest. 
+* **Rule #3**: Do not handle errors (exception) unless you need to recover any resources. Let them go through the system and be handled by upper layers if it is OK to cease abruptly your code execution (which is the most cases). In the situation when some resources need to be released use `finally` clause and let the other code to handle the rest.
 
-  This is applicable mostly in the situations when there is a mechanism of handling the exceptions on the  
+  This is applicable mostly in the situations when there is a mechanism of handling the exceptions on the
 
   For example instead of this:
 
