@@ -174,7 +174,13 @@ The Ddefinitions of messages can be kept in following forms:
       -
         templateId: "msg02"
         message: "Terrible thing just happened, context: %s"
-  
+        possibleCauses:
+          - "Terrible things tend to happen in clusters"
+          - "The world is a terrible place"
+        howToFix:
+          - "Report it to your boss"
+          - "Try to read the code for clues"
+          - "This thing may not be possible to fix"
   ```
 * **Database**
 
@@ -274,6 +280,8 @@ Now we can try to imagine what we want to achieve by sending the information bac
 * **Embedding the message trail** (if needed)
 
   Sometimes if the event message was caused by another event message, then we can embed it and carry it on with the subsequent message for additional context.
+
+  \
 
 Here is the example of a full message in form of the JSON:
 
@@ -408,12 +416,46 @@ try{
 
 As this is the only way of sending back the error information the UI developers can create one standardized way of handling these errors and decide which parts of the message and how they are presented to the End User.
 
-## Simple Rules on How to Code
+## Simple Rules on How to Apply the Framework in Code
 
 Here are some helpful rules on how to use this framework when working on your code:
 
-* **Rule #1**: If you have a non-recoverable situation, use the `Emitter.emitThrow()` method.
+* **Rule #1**: If you have a non-recoverable situation, use the `Emitter.emitThrow()` method or throw the `EventException` exception. They are interchangeable.
 * **Rule #2**: If you want to report that something happened, but it not a situation that prevents your operation to be finished, just emit an event (`Emitter.emit()`) and go on.
-* **Rule #3**: Do not handle errors (exception) unless you need to recover any resources. In such situation try to use “finally” clause and let the other code to handle the rest.
+* **Rule #3**: Do not handle errors (exception) unless you need to recover any resources. Let them go through the system and be handled by upper layers if it is OK to cease abruptly your code execution (which is the most cases). In the situation when some resources need to be released use `finally` clause and let the other code to handle the rest. 
+
+  This is applicable mostly in the situations when there is a mechanism of handling the exceptions on the  
+
+  For example instead of this:
+
+  ```javascript
+  public void myFunction(){
+    try{
+      // ...
+    }
+    catch(Exception e){
+      // ... throw another exception?  
+    }
+    finally {
+      // reclaim resources
+    }
+  }
+  ```
+
+  Just try to avoid the catch clause:
+
+  ```javascript
+  public void myFunction(){
+    try{
+      // ...
+    }
+    finally {
+      // reclaim resources
+    }
+  }
+  ```
+* **Rule #4**: Use the `catch` clause only in case you want to handle error gracefully, which means you may recover from them, find a work-around them and continue the operation (maybe by producing a warning messge) and you do not need to re-throw them later.
+
+  It is good to emit a message in this situtuation though so you can be aware that this situation has happened.
 
 
