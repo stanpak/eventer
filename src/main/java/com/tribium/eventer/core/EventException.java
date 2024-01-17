@@ -14,8 +14,9 @@ public class EventException extends RuntimeException {
     }
 
     public EventException(String templateId, Object... context) {
+        this.message = new EventMessage(templateId, context);
         EventCapturer mc = new EventCapturer();
-        this.message = mc.capture(templateId, context);
+        mc.captureTimeLocation(this.message);
     }
 
     public EventException(EventMessage message) {

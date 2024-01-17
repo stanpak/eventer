@@ -67,3 +67,10 @@ error-handling:
       howToFix:
         - "Write the code again"
         - "Do nothing"
+    -
+      templateId: "msg02"
+      message: "Some error has happened. Please look at the listed messages for clues."
+
+    -
+      templateId: "msg03"
+      message: "Problem #2 has happened."

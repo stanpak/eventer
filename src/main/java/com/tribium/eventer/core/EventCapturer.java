@@ -21,8 +21,7 @@ public class EventCapturer {
         this.configuration = configuration;
     }
 
-    public EventMessage capture(String templateId, Object... context) {
-
+    public void furnishContent(EventMessage m, String templateId, Object... context) {
         if (templateId == null)
             throw new RuntimeException("The 'templateId' was not provided.");
 
@@ -31,9 +30,6 @@ public class EventCapturer {
         if (mt == null)
             throw new RuntimeException(String.format("The template with 'templateId' (%s) was not found.", templateId));
 
-        // Now build the response body...
-        EventMessage m = new EventMessage();
-
         m.templateId = templateId;
 
         if (context != null)
@@ -41,6 +37,14 @@ public class EventCapturer {
         else
             m.message = mt.message;
 
+        if (mt.possibleCauses != null)
+            m.possibleCauses = mt.possibleCauses;
+
+        if (mt.howToFix != null)
+            m.howToFix = mt.howToFix;
+    }
+
+    public void captureTimeLocation(EventMessage m) {
         // Add the time of the event...
         m.emittedAt = new Date();
 
@@ -52,17 +56,9 @@ public class EventCapturer {
         m.stackTrace = new ArrayList<>();
         for (StackTraceElement e : stackTrace)
             m.stackTrace.add(e.toString());
-
-        if (mt.possibleCauses != null)
-            m.possibleCauses = mt.possibleCauses;
-
-        if (mt.howToFix != null)
-            m.howToFix = mt.howToFix;
-
-        return m;
     }
 
-    private MessageTemplate findTemplate(String templateId) {
+    public MessageTemplate findTemplate(String templateId) {
         return templateMap.get(templateId);
     }
 

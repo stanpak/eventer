@@ -7,8 +7,13 @@ import java.util.UUID;
 
 public class EventMessage {
 
-    public List<String> possibleCauses;
+    /**
+     * Each event message can have embedded a list of problems. This feature is especially useful for data
+     * structure validation purposes.
+     */
+    public List<String> messages;
 
+    public List<String> possibleCauses;
     public List<String> howToFix;
     public String id;
     public String templateId;
@@ -23,6 +28,41 @@ public class EventMessage {
         this.id = UUID.randomUUID().toString();
     }
 
+    public EventMessage(String templateId, Object... context) {
+        this();
+        EventCapturer mc = new EventCapturer();
+        mc.furnishContent(this, templateId, context);
+    }
+
+    public void addMessage(String templateId) {
+        if (messages == null)
+            messages = new ArrayList<>();
+
+        EventCapturer ec = new EventCapturer();
+        MessageTemplate mt = ec.findTemplate(templateId);
+        if (mt == null)
+            throw new RuntimeException(String.format("The template with 'templateId' (%s) was not found.", templateId));
+
+        messages.add(mt.getMessage());
+    }
+
+    public void addMessageText(String msg) {
+        if (messages == null)
+            messages = new ArrayList<>();
+        messages.add(msg);
+    }
+
+    public void emitThrowOnMessages() {
+        if (messages != null && !messages.isEmpty()) {
+            Configuration configuration = Configuration.getConfig();
+            if (configuration.getCapture().isEnabled()) {
+                EventCapturer mc = new EventCapturer();
+                mc.captureTimeLocation(this);
+            }
+            Emitter.emitThrow(this);
+        }
+    }
+
     public EventMessage filterFor(Configuration.MessageContent configuration) {
         EventMessage e = new EventMessage();
         e.id = this.id;
@@ -30,8 +70,10 @@ public class EventMessage {
         if (configuration.isTemplateId())
             e.templateId = this.templateId;
 
-        if (configuration.isMessage())
+        if (configuration.isMessage()) {
             e.message = this.message;
+            e.messages = this.messages;
+        }
 
         // Add the time of the event...
         if (configuration.isTiming())
@@ -67,6 +109,7 @@ public class EventMessage {
                 ", templateId='" + templateId + '\'' +
                 ", ExceptionClassName='" + ExceptionClassName + '\'' +
                 ", message='" + message + '\'' +
+                ", messages='" + messages + '\'' +
                 ", emittedAt=" + emittedAt +
                 ", location=" + location +
                 ", stackTrace=" + stackTrace +

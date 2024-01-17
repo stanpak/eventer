@@ -383,7 +383,7 @@ If the error happened and we want to emit an error and throw the exception we ca
   This method still relies on the code which handles these exception to emit a message.
 * **Using emitThrow()**
 
-  If we want to not only throw an exeption but emit w message at this point of code we can use `Emitter.emitThrow()` method. Behavior is as expected but this time we can not only throw an exception but also use message templating mechanism.
+  If we want to not only throw an exception but emit w message at this point of code we can use `Emitter.emitThrow()` method. Behavior is as expected but this time we can not only throw an exception but also use message templating mechanism.
   This is the preferred method of reporting the error by the application's code.
 
 ### **Embedding collection of messages in one event message**
@@ -392,12 +392,12 @@ Yet another is to collect events and then emit them (as a collection).
 
 This method is useful especially when the validation needs to be performed and it is very likely that multiple messages will be created and should be sent back in one call.
 
-Conside following example:
+Consider following example:
 
-```javascript
-EventMessage m = new EventMessage();
-m.addMessage("msgTemplateId1",...);
-m.addMessage("msgTemplateId2",...);
+```java
+EventMessage m = new EventMessage("msgTemplateId0", var1, var2);
+m.addMessage("msgTemplateId1");
+m.addMessage("msgTemplateId2");
 Emitter.emit(m);
 ```
 
@@ -407,13 +407,24 @@ This mechanism is especially useful for validation purposes as we can return a l
 
 If the creating the templates for multiple messages (i.e. for validation purposes) is not required, they can be simply hardcoded as in the example below:
 
-```javascript
- EventMessage m = new EventMessage();
+```java
+EventMessage m = new EventMessage("msgTemplateId0", var1, var2);
 m.addMessageText("The property 'name' must have value.");
 m.addMessageText("The property 'id' must be provided.");
 Emitter.emit(m);
 ```
 
+If the above is used in the code that checks for validity of some data structures, you may use alternative method of emitting the event - only in the situation when there are any sub-messages present in the `EventMessage.messages` list:
+
+```java
+EventMessage m = new EventMessage("msgTemplateId0", var1, var2);
+if(obj.property1 == null)
+    m.addMessage("msgTemplateId1");
+if(obj.property2 <= 0)
+    m.addMessage("msgTemplateId2");
+m.emitThrowOnMessages();
+```
+The method `EventMessage.emitThrowOnMessages()` will make sure to emit a message and throw it as an exception when these is any sub-message added to the main evet message.
 ## How to Handle Events by the UI (caller)
 
 Usually the caller is an UI application, likely a JavaScript based.
@@ -451,7 +462,7 @@ Here are some helpful rules on how to use this framework when working on your co
 
   For example instead of this:
 
-  ```javascript
+  ```java
   public void myFunction(){
     try{
       // ...
@@ -467,7 +478,7 @@ Here are some helpful rules on how to use this framework when working on your co
 
   Just try to avoid the catch clause:
 
-  ```javascript
+  ```java
   public void myFunction(){
     try{
       // ...
@@ -479,6 +490,6 @@ Here are some helpful rules on how to use this framework when working on your co
   ```
 * **Rule #4**: Use the `catch` clause only in case you want to handle error gracefully, which means you may recover from them, find a work-around them and continue the operation (maybe by producing a warning messge) and you do not need to re-throw them later.
 
-  It is good to emit a message in this situtuation though so you can be aware that this situation has happened.
+  It is good to emit a message in this situation though so you can be aware that this situation has happened.
 
 
