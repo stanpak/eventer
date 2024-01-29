@@ -68,7 +68,7 @@ public class EventCapturer {
         m.templateId = null;
 
         // Now build the response body...
-        m.ExceptionClassName = exception.getClass().getCanonicalName();
+        m.exceptionClassName = exception.getClass().getCanonicalName();
 
         if (exception.getLocalizedMessage() != null)
             m.message = exception.getLocalizedMessage();

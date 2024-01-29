@@ -32,6 +32,21 @@ public class SampleController extends BaseController {
         throw new Exception("Sample exception");
     }
 
+    @GetMapping("/nullPointerException")
+    public void nullPointerException() throws NullPointerException {
+        throw new NullPointerException();
+    }
+
+    @GetMapping("/classCastException")
+    public void classCastException() throws Exception {
+        Object obj = new String("Hello");
+        System.out.println((Integer) obj);
+    }
+
+    @GetMapping("/classNotFoundException")
+    public void classNotFoundException() throws Exception {
+        Class.forName("mu.dummy.Class");
+    }
 
     /**
      * Scenario when the EventException was thrown somewhere in the code.

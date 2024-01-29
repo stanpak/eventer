@@ -17,7 +17,7 @@ public class EventMessage {
     public List<String> howToFix;
     public String id;
     public String templateId;
-    public String ExceptionClassName;
+    public String exceptionClassName;
     public String message;
     public Date emittedAt;
     public ExceptionLocation location;
@@ -94,8 +94,8 @@ public class EventMessage {
         if (configuration.isHowToFix())
             e.howToFix = this.howToFix;
 
-//        if (configuration.context)
-//            e.context = this.stackTrace;
+        if (configuration.isExceptionInfo())
+            e.exceptionClassName = this.exceptionClassName;
 
         return e;
     }
@@ -107,7 +107,7 @@ public class EventMessage {
                 ", howToFix=" + howToFix +
                 ", id='" + id + '\'' +
                 ", templateId='" + templateId + '\'' +
-                ", ExceptionClassName='" + ExceptionClassName + '\'' +
+                ", exceptionClassName='" + exceptionClassName + '\'' +
                 ", message='" + message + '\'' +
                 ", messages='" + messages + '\'' +
                 ", emittedAt=" + emittedAt +

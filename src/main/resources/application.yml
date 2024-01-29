@@ -24,7 +24,7 @@ error-handling:
     context: true
     howToFix: true
     exceptionInfo: true
-    stackTrace: true
+    stackTrace: false
     location: true
 
   # Options specifying if the message should be written
@@ -38,7 +38,7 @@ error-handling:
     context: true
     howToFix: true
     exceptionInfo: true
-    stackTrace: false
+    stackTrace: true
     location: true
 
   # Console output features
