@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>eventer</artifactId>
-    <groupId>com.tribium</groupId>
+    <groupId>io.github.stanpak</groupId>
     <version>1</version>
 
     <packaging>jar</packaging>
@@ -27,5 +27,21 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Plugin allowing publishing of this component in the Maven Central repository. -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.3.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <tokenAuth>true</tokenAuth>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
