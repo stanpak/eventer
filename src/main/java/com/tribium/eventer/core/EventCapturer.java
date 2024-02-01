@@ -1,9 +1,7 @@
 package com.tribium.eventer.core;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.MessageFormat;
+import java.util.*;
 
 public class EventCapturer {
 
@@ -21,7 +19,7 @@ public class EventCapturer {
         this.configuration = configuration;
     }
 
-    public void furnishContent(EventMessage m, String templateId, Object... context) {
+    void furnishContent(EventMessage m, String templateId, Object... context) {
         if (templateId == null)
             throw new RuntimeException("The 'templateId' was not provided.");
 
@@ -32,16 +30,25 @@ public class EventCapturer {
 
         m.templateId = templateId;
 
-        if (context != null)
-            m.message = String.format(mt.message, context);
-        else
-            m.message = mt.message;
+        m.addContext(context);
+        m.setMessage(mt.message);
 
         if (mt.possibleCauses != null)
             m.possibleCauses = mt.possibleCauses;
 
         if (mt.howToFix != null)
             m.howToFix = mt.howToFix;
+
+    }
+
+    String furnishMessage(String message, List<String> context) {
+        if (message != null && context != null) {
+            if (message.contains("%s"))
+                return String.format(message, context.toArray());
+            else
+                return MessageFormat.format(message, context.toArray());
+        }
+        return message;
     }
 
     public void captureTimeLocation(EventMessage m) {
@@ -71,7 +78,7 @@ public class EventCapturer {
         m.exceptionClassName = exception.getClass().getCanonicalName();
 
         if (exception.getLocalizedMessage() != null)
-            m.message = exception.getLocalizedMessage();
+            m.setMessage(exception.getLocalizedMessage());
 
         // Add the time of the event...
         m.emittedAt = new Date();

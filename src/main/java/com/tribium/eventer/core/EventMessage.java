@@ -8,7 +8,8 @@ import java.util.UUID;
 public class EventMessage {
 
     /**
-     * Each event message can have embedded a list of problems. This feature is especially useful for data
+     * Each event message can have embedded a list of problems. This feature is
+     * especially useful for data
      * structure validation purposes.
      */
     public List<String> messages;
@@ -18,11 +19,28 @@ public class EventMessage {
     public String id;
     public String templateId;
     public String exceptionClassName;
-    public String message;
+
+    public String getMessage() {
+        return message;
+    }
+
+    private String message;
     public Date emittedAt;
     public ExceptionLocation location;
     public ArrayList<Object> stackTrace;
     public ExceptionExceptionCause cause;
+
+
+    /**
+     * Context is a list of variable values that are important to determine the
+     * context of the message.
+     * They are specified at the place where this event is emitted and their purpose
+     * is to help in finding
+     * the causes of the message or place it in specific situational context.
+     * This can be also a way to dump some variable names for debugging or error
+     * fixing purposes etc.
+     */
+    public List<String> context;
 
     public EventMessage() {
         this.id = UUID.randomUUID().toString();
@@ -32,6 +50,11 @@ public class EventMessage {
         this();
         EventCapturer mc = new EventCapturer();
         mc.furnishContent(this, templateId, context);
+    }
+
+    public void setMessage(String message){
+        EventCapturer mc = new EventCapturer();
+        this.message = mc.furnishMessage(message, this.context);
     }
 
     public void addMessage(String templateId) {
@@ -50,6 +73,15 @@ public class EventMessage {
         if (messages == null)
             messages = new ArrayList<>();
         messages.add(msg);
+    }
+
+    public void addContext(Object[] context) {
+        if (context != null && context.length != 0) {
+            if (this.context == null)
+                this.context = new ArrayList<>();
+            for (Object o : context)
+                this.context.add(o.toString());
+        }
     }
 
     public void emitThrowOnMessages() {
@@ -97,23 +129,27 @@ public class EventMessage {
         if (configuration.isExceptionInfo())
             e.exceptionClassName = this.exceptionClassName;
 
+        if (configuration.isContext())
+            e.context = this.context;
+
         return e;
     }
 
     @Override
     public String toString() {
         return "EventMessage{" +
-                "possibleCauses=" + possibleCauses +
+                "messages=" + messages +
+                ", possibleCauses=" + possibleCauses +
                 ", howToFix=" + howToFix +
                 ", id='" + id + '\'' +
                 ", templateId='" + templateId + '\'' +
                 ", exceptionClassName='" + exceptionClassName + '\'' +
                 ", message='" + message + '\'' +
-                ", messages='" + messages + '\'' +
                 ", emittedAt=" + emittedAt +
                 ", location=" + location +
                 ", stackTrace=" + stackTrace +
                 ", cause=" + cause +
+                ", context=" + context +
                 '}';
     }
 }

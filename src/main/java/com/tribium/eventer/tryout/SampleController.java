@@ -39,8 +39,8 @@ public class SampleController extends BaseController {
 
     @GetMapping("/classCastException")
     public void classCastException() throws Exception {
-        Object obj = new String("Hello");
-        System.out.println((Integer) obj);
+        Object obj = "Hello";
+        System.out.println(obj);
     }
 
     @GetMapping("/classNotFoundException")
@@ -83,6 +83,29 @@ public class SampleController extends BaseController {
     @GetMapping("/emit")
     public void emit() {
         Emitter.emit("msg01");
+    }
+
+    @GetMapping("/emitMessage")
+    public void emitMessage() {
+        Emitter.emitMessage("This is the text of my message");
+    }
+
+    /**
+     * This is the test call to emit a message with direct text plus additional context variables.
+     * This time the %s notation is used. Number of context variables must match the number of '%s' in the message.
+     */
+    @GetMapping("/emitMessageWithContext")
+    public void emitMessageWithContext() {
+        Emitter.emitMessage("This is the text of my message. context: v1: %s, v2: %s", 10, "value");
+    }
+
+    /**
+     * This is the test call to emit a message with direct text plus additional context variables.
+     * This time different notation is used: using the {N}.
+     */
+    @GetMapping("/emitMessageWithContext2")
+    public void emitMessageWithContext2() {
+        Emitter.emitMessage("This is the text of my message. context: v1: {0}, v2: {1}", 10, "value", 20);
     }
 
     /**
