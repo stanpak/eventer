@@ -1,18 +1,17 @@
 package com.tribium.eventer.tryout;
 
-import com.tribium.eventer.core.Emitter;
-import com.tribium.eventer.core.EventException;
-import com.tribium.eventer.core.EventMessage;
+import com.tribium.eventer.core.*;
 import com.tribium.eventer.rest.BaseController;
-import org.springframework.stereotype.Controller;
+import com.tribium.eventer.rest.StringWrapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * This is a sample controller to test various simple scenarios that may happen in code
  * and to see how they will be handled.
  */
-@Controller
+@RestController
 @RequestMapping("/tryout")
 public class SampleController extends BaseController {
 
@@ -68,12 +67,38 @@ public class SampleController extends BaseController {
     }
 
     /**
-     * Just for sanity sake we include here the response that does not carry any errors
+     * Just for the sanity sake we include here the response that does not carry any errors
      * or other functionality.
      */
-    @GetMapping("/ok")
-    public String ok() {
-        return "OK";
+    @GetMapping("/string")
+    public String string() {
+        return "hello!";
+    }
+
+    @GetMapping("/string2")
+    public StringWrapper string2() {
+        return new StringWrapper("hello!");
+    }
+
+    @GetMapping("/nothing")
+    public void nothing() {}
+
+    @GetMapping("/double")
+    public double numberDouble() { return 10.2; }
+
+    @GetMapping("/float")
+    public float numberFloat() { return 10.2f; }
+
+    @GetMapping("/integer")
+    public int numberInteger() { return 10; }
+
+    /**
+     * Just to test if any object can be returned without the issue.
+     * @return
+     */
+    @GetMapping("/object")
+    public ExceptionLocation object() {
+        return new ExceptionLocation();
     }
 
     /**

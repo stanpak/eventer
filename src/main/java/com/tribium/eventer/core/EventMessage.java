@@ -1,10 +1,13 @@
 package com.tribium.eventer.core;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EventMessage {
 
     /**
@@ -19,18 +22,10 @@ public class EventMessage {
     public String id;
     public String templateId;
     public String exceptionClassName;
-
-    public String getMessage() {
-        return message;
-    }
-
-    private String message;
     public Date emittedAt;
     public ExceptionLocation location;
     public ArrayList<Object> stackTrace;
     public ExceptionExceptionCause cause;
-
-
     /**
      * Context is a list of variable values that are important to determine the
      * context of the message.
@@ -41,6 +36,8 @@ public class EventMessage {
      * fixing purposes etc.
      */
     public List<String> context;
+    private String message;
+
 
     public EventMessage() {
         this.id = UUID.randomUUID().toString();
@@ -52,7 +49,11 @@ public class EventMessage {
         mc.furnishContent(this, templateId, context);
     }
 
-    public void setMessage(String message){
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
         EventCapturer mc = new EventCapturer();
         this.message = mc.furnishMessage(message, this.context);
     }

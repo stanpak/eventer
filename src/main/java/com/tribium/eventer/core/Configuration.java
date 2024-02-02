@@ -11,12 +11,27 @@ public class Configuration {
     private static Configuration config;
     private final MessageContent capture = new MessageContent();
     private final MessageContent console = new MessageContent();
+    /**
+     * Option that tells the engine to get any response from the controllers and wrap them in the
+     * JSON envelope structure with "success" flag and the content property ("error" or "data").
+     * In such scenario status 419 is converted to OK and the only way to tell that there was error
+     * is to check the value of the "success" property.
+     */
+    private boolean wrapResponse = true;
     private MessageContent restResponse = new MessageContent();
     private MessageContent log = new MessageContent();
     private List<MessageTemplate> templates;
 
     public static Configuration getConfig() {
         return config;
+    }
+
+    public boolean isWrapResponse() {
+        return wrapResponse;
+    }
+
+    public void setWrapResponse(boolean wrapResponse) {
+        this.wrapResponse = wrapResponse;
     }
 
     public MessageContent getConsole() {
