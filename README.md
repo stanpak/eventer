@@ -1,11 +1,14 @@
 # Eventer - the Comprehensive Event and Error Handling Framework
 
-> This document is still under construction.
-
-
 ## Symptoms of a Problem
 
 Did you ever wondered why your error handling in Java always sucks? Plenty of code written every day trying endlessly to try and catch the errors and then report it and push forward etc. Well it can be done better than that. In fact much better. And the method of doing so id described in this document.
+
+First, it is a cost. TBD
+
+Second, we are not born with skills to do it correctly and efficiently. TBD 
+
+Third, its importance is undervalued, usually put into the category of the "technical debt". Theyes is plenty wrong with this analogy. 
 
 ### Examples of Bad Behavior
 

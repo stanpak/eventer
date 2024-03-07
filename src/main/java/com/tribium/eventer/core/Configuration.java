@@ -1,8 +1,13 @@
 package com.tribium.eventer.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @org.springframework.context.annotation.Configuration
@@ -66,9 +71,36 @@ public class Configuration {
         this.templates = templates;
     }
 
+    /**
+     * This method is invoked by the Spring Framework that is presumably initiating the structure from the configuration file
+     * and the singleton of that class is created in the Spring context.
+     */
     @PostConstruct
-    private void initialize() {
+    private void springFrameworkInitialize() {
         config = this;
+    }
+
+    /**
+     * This is the alternative method that can be used to initialize the framework, whe the Spring Framework initialization
+     * cannot be used for whatever reason.
+     * The configuration file can be provided in the parameter.
+     */
+    public static void initializeFromYml(String ymlConfigFilePath) throws IOException {
+        config = getConfigFromYml(ymlConfigFilePath);
+    }
+
+    /**
+     * Creates new instance of the Configuration directly from the provided YML file.
+     * @param ymlConfigFilePath
+     * @return
+     * @throws IOException
+     */
+    public static Configuration getConfigFromYml(String ymlConfigFilePath, String context) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.findAndRegisterModules();
+        File file =ResourceUtils.getFile(ymlConfigFilePath);
+        Configuration c = mapper.treeToValue(mapper.readTree(file).get(context), Configuration.class);
+        return c;
     }
 
     public static class MessageContent {

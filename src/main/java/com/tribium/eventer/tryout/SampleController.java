@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 /**
  * This is a sample controller to test various simple scenarios that may happen in code
  * and to see how they will be handled.
@@ -99,6 +101,11 @@ public class SampleController extends BaseController {
     @GetMapping("/object")
     public ExceptionLocation object() {
         return new ExceptionLocation();
+    }
+
+    @GetMapping("/readConfigFromYml")
+    public Configuration readConfigFromYml() throws IOException {
+        return Configuration.getConfigFromYml("classpath:application.yml","error-handling");
     }
 
     /**
