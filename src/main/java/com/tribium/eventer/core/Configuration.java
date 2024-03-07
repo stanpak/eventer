@@ -1,5 +1,6 @@
 package com.tribium.eventer.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import jakarta.annotation.PostConstruct;
@@ -85,8 +86,8 @@ public class Configuration {
      * cannot be used for whatever reason.
      * The configuration file can be provided in the parameter.
      */
-    public static void initializeFromYml(String ymlConfigFilePath) throws IOException {
-        config = getConfigFromYml(ymlConfigFilePath);
+    public static void initializeFromYml(String ymlConfigFilePath, String context) throws IOException {
+        config = getConfigFromYml(ymlConfigFilePath, context);
     }
 
     /**
@@ -99,7 +100,10 @@ public class Configuration {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         mapper.findAndRegisterModules();
         File file =ResourceUtils.getFile(ymlConfigFilePath);
-        Configuration c = mapper.treeToValue(mapper.readTree(file).get(context), Configuration.class);
+        JsonNode node = mapper.readTree(file);
+        if(context != null)
+            node = node.get(context);
+        Configuration c = mapper.treeToValue(node, Configuration.class);
         return c;
     }
 
