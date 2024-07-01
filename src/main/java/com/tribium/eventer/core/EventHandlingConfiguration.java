@@ -5,16 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.FileCopyUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @org.springframework.context.annotation.Configuration
-@ConfigurationProperties("error-handling")
-public class Configuration {
-    private static Configuration config;
+@ConfigurationProperties("event-handling")
+public class EventHandlingConfiguration {
+    private static EventHandlingConfiguration config;
     private final MessageContent capture = new MessageContent();
     private final MessageContent console = new MessageContent();
     /**
@@ -28,8 +29,42 @@ public class Configuration {
     private MessageContent log = new MessageContent();
     private List<MessageTemplate> templates;
 
-    public static Configuration getConfig() {
+    public static EventHandlingConfiguration getConfig() {
         return config;
+    }
+
+    /**
+     * This is the alternative method that can be used to initialize the framework, whe the Spring Framework initialization
+     * cannot be used for whatever reason.
+     * The configuration file can be provided in the parameter.
+     */
+    public static void initializeFromYml(String ymlConfigFilePath, String context) throws IOException {
+        config = getConfigFromYml(ymlConfigFilePath, context);
+    }
+
+    /**
+     * Creates new instance of the Configuration directly from the provided YML file.
+     *
+     * @param ymlConfigFilePath
+     * @return
+     * @throws IOException
+     */
+    public static EventHandlingConfiguration getConfigFromYml(String ymlConfigFilePath, String context) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.findAndRegisterModules();
+
+        ClassPathResource resource = new ClassPathResource(ymlConfigFilePath);
+        byte[] bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+        String jsonString = new String(bytes, StandardCharsets.UTF_8);
+
+        JsonNode node = mapper.readTree(jsonString);
+        if (context != null)
+            node = node.get(context);
+
+        if(node == null)
+            throw new RuntimeException("The context node cannot be found in the configuration file! Please make sure that the configuration file is there in the classpath under its name ('"+ymlConfigFilePath+"') and the context element in this file is the correct one ('"+context+"').");
+
+        return mapper.treeToValue(node, EventHandlingConfiguration.class);
     }
 
     public boolean isWrapResponse() {
@@ -81,34 +116,10 @@ public class Configuration {
         config = this;
     }
 
-    /**
-     * This is the alternative method that can be used to initialize the framework, whe the Spring Framework initialization
-     * cannot be used for whatever reason.
-     * The configuration file can be provided in the parameter.
-     */
-    public static void initializeFromYml(String ymlConfigFilePath, String context) throws IOException {
-        config = getConfigFromYml(ymlConfigFilePath, context);
-    }
-
-    /**
-     * Creates new instance of the Configuration directly from the provided YML file.
-     * @param ymlConfigFilePath
-     * @return
-     * @throws IOException
-     */
-    public static Configuration getConfigFromYml(String ymlConfigFilePath, String context) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        mapper.findAndRegisterModules();
-        File file =ResourceUtils.getFile(ymlConfigFilePath);
-        JsonNode node = mapper.readTree(file);
-        if(context != null)
-            node = node.get(context);
-        Configuration c = mapper.treeToValue(node, Configuration.class);
-        return c;
-    }
-
     public static class MessageContent {
         private boolean enabled = true;
+        private Format format = Format.Text;
+        private boolean multiLine = false;
         private boolean templateId = true;
         private boolean timing = true;
         private boolean message = true;
@@ -118,6 +129,22 @@ public class Configuration {
         private boolean exceptionInfo = true;
         private boolean stackTrace = true;
         private boolean location = true;
+
+        public Format getFormat() {
+            return format;
+        }
+
+        public void setFormat(Format format) {
+            this.format = format;
+        }
+
+        public boolean isMultiLine() {
+            return multiLine;
+        }
+
+        public void setMultiLine(boolean multiLine) {
+            this.multiLine = multiLine;
+        }
 
         public boolean isEnabled() {
             return enabled;
@@ -197,6 +224,10 @@ public class Configuration {
 
         public void setLocation(boolean location) {
             this.location = location;
+        }
+
+        public enum Format {
+            Text, JSON
         }
     }
 }

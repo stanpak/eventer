@@ -1,4 +1,4 @@
-error-handling:
+event-handling:
   # Option that tells the engine to get any response from the controllers and wrap them in the
   # JSON envelope structure with "success" flag and the content property ("error" or "data").
   # In such scenario status 419 is converted to OK and the only way to tell that there was error
@@ -49,6 +49,8 @@ error-handling:
   # Console output features
   console:
     enabled: true
+    format: JSON
+    multiLine: true
     templateId: true
     timing: true
     message: true

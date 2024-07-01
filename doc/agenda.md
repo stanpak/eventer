@@ -18,10 +18,9 @@
 * How the framework works (highlight principles)
 * Show examples of use from the dev perspecitive
 * How the messages are composed to various audiences
-* How the configuration works
+* How the eventHandlingConfiguration works
 * Where the messages can be templetized
 * Benefits of message ID
 * How quickly this framework can be implemented - 1week
-* \
 
 

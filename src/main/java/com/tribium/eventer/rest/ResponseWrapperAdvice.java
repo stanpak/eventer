@@ -1,6 +1,6 @@
 package com.tribium.eventer.rest;
 
-import com.tribium.eventer.core.Configuration;
+import com.tribium.eventer.core.EventHandlingConfiguration;
 import com.tribium.eventer.core.EventMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
 
     @Autowired
-    protected Configuration configuration;
+    protected EventHandlingConfiguration eventHandlingConfiguration;
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -26,7 +26,7 @@ public class ResponseWrapperAdvice implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
-        if (configuration.isWrapResponse()) {
+        if (eventHandlingConfiguration.isWrapResponse()) {
             ResponseWrapper w = new ResponseWrapper();
             if(body instanceof EventMessage){
                 w.success = false;

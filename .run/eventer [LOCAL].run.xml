@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="eventer [LOCAL]" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.tribium.eventer.Application" />
+    <module name="eventer" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.tribium.eventer.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

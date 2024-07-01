@@ -169,7 +169,7 @@ The Ddefinitions of messages can be kept in following forms:
   Below is the example of such a message template definition:
 
   ```yaml
-  error-handling:
+  event-handling:
     templates:
       -
         templateId: "msg00"

@@ -5,18 +5,18 @@ import java.util.*;
 
 public class EventCapturer {
 
-    private final Configuration configuration;
+    private final EventHandlingConfiguration eventHandlingConfiguration;
     private final Map<String, MessageTemplate> templateMap = new HashMap<>();
 
     public EventCapturer() {
-        this.configuration = Configuration.getConfig();
-        if (this.configuration.getTemplates() != null)
-            for (MessageTemplate t : this.configuration.getTemplates())
+        this.eventHandlingConfiguration = EventHandlingConfiguration.getConfig();
+        if (this.eventHandlingConfiguration.getTemplates() != null)
+            for (MessageTemplate t : this.eventHandlingConfiguration.getTemplates())
                 templateMap.put(t.templateId, t);
     }
 
-    public EventCapturer(Configuration configuration) {
-        this.configuration = configuration;
+    public EventCapturer(EventHandlingConfiguration eventHandlingConfiguration) {
+        this.eventHandlingConfiguration = eventHandlingConfiguration;
     }
 
     void furnishContent(EventMessage m, String templateId, Object... context) {

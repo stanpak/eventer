@@ -1,6 +1,10 @@
 package com.tribium.eventer.core;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -87,8 +91,8 @@ public class EventMessage {
 
     public void emitThrowOnMessages() {
         if (messages != null && !messages.isEmpty()) {
-            Configuration configuration = Configuration.getConfig();
-            if (configuration.getCapture().isEnabled()) {
+            EventHandlingConfiguration eventHandlingConfiguration = EventHandlingConfiguration.getConfig();
+            if (eventHandlingConfiguration.getCapture().isEnabled()) {
                 EventCapturer mc = new EventCapturer();
                 mc.captureTimeLocation(this);
             }
@@ -96,7 +100,7 @@ public class EventMessage {
         }
     }
 
-    public EventMessage filterFor(Configuration.MessageContent configuration) {
+    public EventMessage filterFor(EventHandlingConfiguration.MessageContent configuration) {
         EventMessage e = new EventMessage();
         e.id = this.id;
 
@@ -136,21 +140,67 @@ public class EventMessage {
         return e;
     }
 
+    public String toString(EventHandlingConfiguration.MessageContent c) {
+        if (c.getFormat() == EventHandlingConfiguration.MessageContent.Format.Text) {
+            if (c.isMultiLine())
+                return new org.apache.commons.lang3.builder.ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                        .append("cause", cause)
+                        .append("context", context)
+                        .append("emittedAt", emittedAt)
+                        .append("exceptionClassName", exceptionClassName)
+                        .append("howToFix", howToFix)
+                        .append("id", id)
+                        .append("location", location)
+                        .append("message", message)
+                        .append("messages", messages)
+                        .append("possibleCauses", possibleCauses)
+                        .append("stackTrace", stackTrace)
+                        .append("templateId", templateId)
+                        .toString();
+            return new org.apache.commons.lang3.builder.ToStringBuilder(this)
+                    .append("cause", cause)
+                    .append("context", context)
+                    .append("emittedAt", emittedAt)
+                    .append("exceptionClassName", exceptionClassName)
+                    .append("howToFix", howToFix)
+                    .append("id", id)
+                    .append("location", location)
+                    .append("message", message)
+                    .append("messages", messages)
+                    .append("possibleCauses", possibleCauses)
+                    .append("stackTrace", stackTrace)
+                    .append("templateId", templateId)
+                    .toString();
+        } else if (c.getFormat() == EventHandlingConfiguration.MessageContent.Format.JSON) {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            if (c.isMultiLine())
+                mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            try {
+                return mapper.writeValueAsString(this);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return messages.toString();
+    }
+
     @Override
     public String toString() {
-        return "EventMessage{" +
-                "messages=" + messages +
-                ", possibleCauses=" + possibleCauses +
-                ", howToFix=" + howToFix +
-                ", id='" + id + '\'' +
-                ", templateId='" + templateId + '\'' +
-                ", exceptionClassName='" + exceptionClassName + '\'' +
-                ", message='" + message + '\'' +
-                ", emittedAt=" + emittedAt +
-                ", location=" + location +
-                ", stackTrace=" + stackTrace +
-                ", cause=" + cause +
-                ", context=" + context +
-                '}';
+        return new org.apache.commons.lang3.builder.ToStringBuilder(this)
+                .append("cause", cause)
+                .append("context", context)
+                .append("emittedAt", emittedAt)
+                .append("exceptionClassName", exceptionClassName)
+                .append("howToFix", howToFix)
+                .append("id", id)
+                .append("location", location)
+                .append("message", message)
+                .append("messages", messages)
+                .append("possibleCauses", possibleCauses)
+                .append("stackTrace", stackTrace)
+                .append("templateId", templateId)
+                .toString();
     }
 }

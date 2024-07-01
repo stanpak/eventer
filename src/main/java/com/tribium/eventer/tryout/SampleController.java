@@ -104,8 +104,8 @@ public class SampleController extends BaseController {
     }
 
     @GetMapping("/readConfigFromYml")
-    public Configuration readConfigFromYml() throws IOException {
-        return Configuration.getConfigFromYml("classpath:application.yml","error-handling");
+    public EventHandlingConfiguration readConfigFromYml() throws IOException {
+        return EventHandlingConfiguration.getConfigFromYml("application.yml","event-handling");
     }
 
     /**
